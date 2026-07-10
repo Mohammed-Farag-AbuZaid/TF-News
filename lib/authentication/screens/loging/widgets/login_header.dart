@@ -18,16 +18,16 @@ class LoginHeader extends StatelessWidget {
         Image(
           height: 150,
           image: AssetImage(
-            dark ? TImages.google : TImages.google,
+            dark ? TImages.tfLogo : TImages.tfLogo,
           ),
         ),
         Text(
-          'TTexts.loginTitle,',
+          'Welcome Back',
           style: Theme.of(context).textTheme.headlineMedium,
         ),
         const SizedBox(height: TSizes.sm),
         Text(
-          'TTexts.loginSubTitle,',
+          'Login Using Your TF Account',
           style: Theme.of(context).textTheme.bodyMedium,
         ),
       ],

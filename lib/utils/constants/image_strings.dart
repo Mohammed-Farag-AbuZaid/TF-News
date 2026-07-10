@@ -13,4 +13,7 @@ class TImages {
 
   // user profile
   static const String user = "assets/images/user.png";
+
+  // TF LOGOS
+  static const String tfLogo = "assets/logos/TF-UNIONS.png";
 }
