@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:tf_news/pages/widgets/filter_column.dart';
 import 'package:tf_news/pages/widgets/nav_bar.dart';
+import 'package:tf_news/pages/widgets/opportunities_header.dart';
+import 'package:tf_news/pages/widgets/topic_related_filter.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -12,43 +13,36 @@ class HomeScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
         child: ListView(
           children: [
-            SizedBox(height: 20),
-            NavBar(),
-            Divider(),
+            const SizedBox(height: 20),
+            const NavBar(),
+            const Divider(),
             Row(
-              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 250,
-                  decoration: BoxDecoration(
-                    border: Border.fromBorderSide(
-                      BorderSide(color: Colors.grey[300]!),
-                    ),
-                    color: Colors.grey[200],
-                  ),
-                  child: FilterColumn(),
-                ),
-                SizedBox(width: 16),
-              
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          'Opportunities',
-                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 0.5,
-                              ),
+                const TopicRelatedFilter(),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const OpportunitiesHeader(),
+                      const SizedBox(height: 8),
+                      Card(
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        SizedBox(width: 8),
-                        Icon(Icons.arrow_forward_ios, size: 16),
-                      ],
-                    ),
-                  ],
+                        child: Container(
+                          height: 400,
+                          padding: const EdgeInsets.all(16),
+                          child: const Center(
+                            child: Text('Opportunities List'),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                
               ],
             ),
           ],
@@ -57,3 +51,4 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
+
