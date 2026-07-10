@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:tf_news/bindings/general_bindings.dart';
 import 'package:tf_news/utils/theme/theme.dart';
 
-
 class App extends StatelessWidget {
   const App({super.key});
 
@@ -18,10 +17,8 @@ class App extends StatelessWidget {
         return Container(
           color: Theme.of(context).scaffoldBackgroundColor,
           alignment: Alignment.topCenter,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 880),
-            child: child!,
-          ),
+
+          child: child!,
         );
       },
       home: const Scaffold(

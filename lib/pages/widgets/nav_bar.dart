@@ -18,6 +18,7 @@ class _NavBarState extends State<NavBar> {
     'Programs',
     'Volunteering',
     'Scholarships',
+    'More',
   ];
 
   String selected = 'All';
