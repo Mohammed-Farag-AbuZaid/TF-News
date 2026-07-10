@@ -6,29 +6,42 @@ import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:tf_news/authentication/screens/changeinfo.dart';
+import 'package:tf_news/authentication/screens/email_verification.dart';
+import 'package:tf_news/authentication/screens/loging/login.dart';
+import 'package:tf_news/pages/home_page.dart';
+import 'package:tf_news/utils/exceptions/firebase_auth_exceptions.dart';
+import 'package:tf_news/utils/exceptions/firebase_exceptions.dart';
+import 'package:tf_news/utils/exceptions/formate_exceptions.dart';
 
 class AuthenticationRepository extends GetxController {
   static AuthenticationRepository get instance => Get.find();
 
-  /// Variables
   final deviceStorage = GetStorage();
   final _auth = FirebaseAuth.instance;
+  final _googleSignIn = GoogleSignIn.instance;
+  bool _googleSignInInitialized = false;
 
   User? get authUser => _auth.currentUser;
+
+  @override
+  void onReady() {
+    screenRedirect();
+  }
 
   void screenRedirect() async {
     final user = _auth.currentUser;
 
     if (user != null) {
-      // If the user is logged in
       if (user.emailVerified) {
         final doc = await FirebaseFirestore.instance
             .collection('users')
             .doc(user.uid)
             .get();
         if (!doc.exists ||
-            (doc.data() ?? {})['stemSchool'] == null ||
-            (doc.data()!['stemSchool'] as String).isEmpty) {
+            (doc.data() ?? {})['firstName'] == null ||
+            (doc.data()!['lastName'] as String).isEmpty) {
           Get.offAll(
             () => const ChangeAcademicInfo(
               showBackArrow: false,
@@ -39,16 +52,13 @@ class AuthenticationRepository extends GetxController {
             ),
           );
         } else {
-          Get.offAll(() => const NavigationMenu());
+          Get.offAll(() => const HomeScreen());
         }
       } else {
         Get.offAll(() => const EmailVerification());
       }
     } else {
-      deviceStorage.writeIfNull('IsFirstTime', true);
-      deviceStorage.read('IsFirstTime') != true
-          ? Get.offAll(() => const LoginScreen())
-          : Get.offAll(const OnBoardingScreen());
+      Get.offAll(() => const LoginScreen());
     }
   }
 
@@ -103,7 +113,7 @@ class AuthenticationRepository extends GetxController {
   Future<void> logout() async {
     try {
       try {
-        await GoogleSignIn().signOut();
+        await _googleSignIn.signOut();
       } catch (_) {}
       await FirebaseAuth.instance.signOut();
       Get.offAll(() => const LoginScreen());
@@ -118,27 +128,27 @@ class AuthenticationRepository extends GetxController {
 
   Future<UserCredential?> signInWithGoogle() async {
     try {
-      // Trigger the authentication flow
-      final GoogleSignInAccount? userAccount = await GoogleSignIn().signIn();
+      if (!_googleSignInInitialized) {
+        await _googleSignIn.initialize();
+        _googleSignInInitialized = true;
+      }
 
-      // Obtain the auth details from the request
-      final GoogleSignInAuthentication? googleAuth =
-          await userAccount?.authentication;
+      final GoogleSignInAccount userAccount = await _googleSignIn.authenticate();
 
-      // Create a new credential
+      final GoogleSignInAuthentication googleAuth = userAccount.authentication;
+
       final credentials = GoogleAuthProvider.credential(
-        accessToken: googleAuth?.accessToken,
-        idToken: googleAuth?.idToken,
+        idToken: googleAuth.idToken,
       );
 
-      // Once signed in, return the UserCredential
       return await _auth.signInWithCredential(credentials);
+    } on GoogleSignInException catch (e) {
+      if (kDebugMode) print('Google sign-in failed: ${e.code} ${e.description}');
+      return null;
     } on FirebaseAuthException catch (e) {
       throw TFirebaseAuthException(e.code).message;
     } on FirebaseException catch (e) {
       throw TFirebaseException(e.code).message;
-    } on FormatException catch (_) {
-      throw const TFormatException();
     } catch (e) {
       if (kDebugMode) print('Something went wrong: $e');
       return null;

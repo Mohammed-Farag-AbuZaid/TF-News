@@ -29,7 +29,7 @@ class LoginController extends GetxController {
     try {
       TFuelScreenLoader.openLoadingDialog(
         'Logging in...',
-        'assets/images/loading.json',
+        'assets/loading/loading.json',
       );
 
       final isConnected = await NetworkManager.instance.isConnected();
@@ -68,7 +68,7 @@ class LoginController extends GetxController {
     try {
       TFuelScreenLoader.openLoadingDialog(
         'Signing in with Google...',
-        'assets/images/loading.json',
+        'assets/loading/loading.json',
       );
 
       final isConnected = await NetworkManager.instance.isConnected();

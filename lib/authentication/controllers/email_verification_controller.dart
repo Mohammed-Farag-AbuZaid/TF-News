@@ -15,7 +15,7 @@ class EmailVerificationController extends GetxController {
     try {
       TFuelScreenLoader.openLoadingDialog(
         'Sending verification email...',
-        'assets/images/loading.json',
+        'assets/loading/loading.json',
       );
 
       // Check Internet Connection

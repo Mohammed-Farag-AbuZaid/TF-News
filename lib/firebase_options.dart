@@ -21,20 +21,11 @@ class DefaultFirebaseOptions {
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for android - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return android;
       case TargetPlatform.iOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for ios - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
         return windows;
       case TargetPlatform.linux:
@@ -60,10 +51,39 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions windows = FirebaseOptions(
     apiKey: 'AIzaSyB0bILaWHg8QXuwl3Fhfht3BQnYLgTkWUk',
-    appId: '1:879703010053:web:9444f9275d3a7f0a67a56c',
+    appId: '1:879703010053:web:1ff531e0797a3fe167a56c',
     messagingSenderId: '879703010053',
     projectId: 'tf-unions',
     authDomain: 'tf-unions.firebaseapp.com',
+    storageBucket: 'tf-unions.firebasestorage.app',
+  );
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyDz9RUYj3bA5GChVD_0KiGbXa_wIH9VU2s',
+    appId: '1:879703010053:ios:e1beb2bc77c42ba567a56c',
+    messagingSenderId: '879703010053',
+    projectId: 'tf-unions',
+    storageBucket: 'tf-unions.firebasestorage.app',
+    androidClientId: '879703010053-a8er8rrdojiu7aloe9f99v3drsemee4o.apps.googleusercontent.com',
+    iosClientId: '879703010053-617cr8s9h8plaos5vbe98608br26ptar.apps.googleusercontent.com',
+    iosBundleId: 'com.example.tfNews',
+  );
+
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyDz9RUYj3bA5GChVD_0KiGbXa_wIH9VU2s',
+    appId: '1:879703010053:ios:e1beb2bc77c42ba567a56c',
+    messagingSenderId: '879703010053',
+    projectId: 'tf-unions',
+    storageBucket: 'tf-unions.firebasestorage.app',
+    androidClientId: '879703010053-a8er8rrdojiu7aloe9f99v3drsemee4o.apps.googleusercontent.com',
+    iosClientId: '879703010053-617cr8s9h8plaos5vbe98608br26ptar.apps.googleusercontent.com',
+    iosBundleId: 'com.example.tfNews',
+  );
+
+  static const FirebaseOptions android = FirebaseOptions(
+    apiKey: 'AIzaSyDAZ8yqqEQxefJGjUXcWoRqELQ5gD6xMFI',
+    appId: '1:879703010053:android:2139f411f739930767a56c',
+    messagingSenderId: '879703010053',
+    projectId: 'tf-unions',
     storageBucket: 'tf-unions.firebasestorage.app',
   );
 }

@@ -24,7 +24,7 @@ class ForgetPasswordController extends GetxController {
     try {
       TFuelScreenLoader.openLoadingDialog(
         'Sending password reset email...',
-        'assets/images/loading.json',
+        'assets/loading/loading.json',
       );
 
       // Check Internet Connection
@@ -80,7 +80,7 @@ class ForgetPasswordController extends GetxController {
     try {
       TFuelScreenLoader.openLoadingDialog(
         'Sending password reset email...',
-        'assets/images/loading.json',
+        'assets/loading/loading.json',
       );
 
       // Check Internet Connection
