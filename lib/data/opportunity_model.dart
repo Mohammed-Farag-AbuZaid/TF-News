@@ -1,19 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Opportunity {
-  final String id; // the Firestore document ID — always useful to keep
+  final String id;
   final String title;
   final String shortDescription;
   final String aboutMarkdown;
   final String requirementsMarkdown;
   final String benefitsMarkdown;
   final String guidelinesMarkdown;
+  final DateTime startDate;
   final DateTime deadline;
   final String category;
   final String topic;
   final String link;
   final int ratingCount;
-
 
   Opportunity({
     required this.id,
@@ -23,6 +23,7 @@ class Opportunity {
     required this.requirementsMarkdown,
     required this.benefitsMarkdown,
     required this.guidelinesMarkdown,
+    required this.startDate,
     required this.deadline,
     required this.category,
     required this.topic,
@@ -40,11 +41,12 @@ class Opportunity {
       requirementsMarkdown: data['requirementsMarkdown'] ?? '',
       benefitsMarkdown: data['benefitsMarkdown'] ?? '',
       guidelinesMarkdown: data['guidelinesMarkdown'] ?? '',
+      startDate: (data['startDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
       deadline: (data['deadline'] as Timestamp?)?.toDate() ?? DateTime.now(),
       category: data['category'] ?? '',
       topic: data['topic'] ?? '',
       link: data['link'] ?? '',
-      ratingCount: (data['ratingCount'] as num?)?.toDouble() ?? 0.0,
+      ratingCount: (data['ratingCount'] as num?)?.toInt() ?? 0,
     );
   }
 }
