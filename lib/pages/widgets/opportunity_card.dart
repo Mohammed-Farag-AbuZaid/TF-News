@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tf_news/common/widgets/images/rounded_image.dart';
+import 'package:tf_news/pages/opportunity_page.dart';
 import 'package:tf_news/utils/constants/image_strings.dart';
 
 class OpportunityCard extends StatelessWidget {
@@ -56,7 +57,10 @@ class OpportunityCard extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: () {},
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const OpportunityPage()),
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 shape: RoundedRectangleBorder(
