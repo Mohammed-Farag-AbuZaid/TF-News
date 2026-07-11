@@ -19,7 +19,7 @@ class CategoryButton extends StatelessWidget {
       onPressed: onTap,
       style: ButtonStyle(
         backgroundColor: WidgetStatePropertyAll(
-          isSelected ? TColors.primary : TColors.primary.withOpacity(0.08),
+          isSelected ? TColors.primary : TColors.primary.withValues(alpha: 0.08),
         ),
         foregroundColor: WidgetStatePropertyAll(
           isSelected ? Colors.white : TColors.primary,
@@ -30,7 +30,7 @@ class CategoryButton extends StatelessWidget {
             side: BorderSide(
               color: isSelected
                   ? TColors.primary
-                  : TColors.primary.withOpacity(0.2),
+                  : TColors.primary.withValues(alpha: 0.2),
             ),
           ),
         ),

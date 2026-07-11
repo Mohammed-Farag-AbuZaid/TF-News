@@ -33,7 +33,7 @@ class _FilterColumnState extends State<FilterColumn> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Filters',
+            'Topics',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w800,
                   letterSpacing: 0.5,

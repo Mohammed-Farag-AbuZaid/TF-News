@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tf_news/pages/widgets/nav_bar.dart';
 import 'package:tf_news/pages/widgets/opportunities_header.dart';
 import 'package:tf_news/pages/widgets/opportunity_card.dart';
+import 'package:tf_news/pages/widgets/status_filter.dart';
 import 'package:tf_news/pages/widgets/topic_related_filter.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -20,7 +21,13 @@ class HomeScreen extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const TopicRelatedFilter(),
+                Column(
+                  children: [
+                    TopicRelatedFilter(),
+                    const SizedBox(height: 16),
+                    StatusFilter(),
+                  ],
+                ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
@@ -31,14 +38,16 @@ class HomeScreen extends StatelessWidget {
                       GridView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                          maxCrossAxisExtent: 500, // fixed card width
-                          mainAxisExtent: 350,     // fixed card height
-                          crossAxisSpacing: 35,
-                          mainAxisSpacing: 35,
-                        ),
+                        gridDelegate:
+                            const SliverGridDelegateWithMaxCrossAxisExtent(
+                              maxCrossAxisExtent: 500, // fixed card width
+                              mainAxisExtent: 350, // fixed card height
+                              crossAxisSpacing: 35,
+                              mainAxisSpacing: 35,
+                            ),
                         itemCount: 6,
-                        itemBuilder: (context, index) => const OpportunityCard(),
+                        itemBuilder: (context, index) =>
+                            const OpportunityCard(),
                       ),
                     ],
                   ),
