@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tf_news/pages/widgets/nav_bar.dart';
 import 'package:tf_news/pages/widgets/opportunities_header.dart';
+import 'package:tf_news/pages/widgets/opportunity_card.dart';
 import 'package:tf_news/pages/widgets/topic_related_filter.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -26,19 +27,18 @@ class HomeScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const OpportunitiesHeader(),
-                      const SizedBox(height: 8),
-                      Card(
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                      const SizedBox(height: 16),
+                      GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                          maxCrossAxisExtent: 500, // fixed card width
+                          mainAxisExtent: 350,     // fixed card height
+                          crossAxisSpacing: 35,
+                          mainAxisSpacing: 35,
                         ),
-                        child: Container(
-                          height: 400,
-                          padding: const EdgeInsets.all(16),
-                          child: const Center(
-                            child: Text('Opportunities List'),
-                          ),
-                        ),
+                        itemCount: 6,
+                        itemBuilder: (context, index) => const OpportunityCard(),
                       ),
                     ],
                   ),
@@ -51,4 +51,3 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
-

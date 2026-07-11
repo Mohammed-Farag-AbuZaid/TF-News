@@ -13,7 +13,7 @@ class FilterTile extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
 
-  const FilterTile({
+  const FilterTile({super.key, 
     required this.icon,
     required this.label,
     required this.isSelected,
