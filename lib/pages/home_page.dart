@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:tf_news/data/opportunity_model.dart';
+import 'package:tf_news/data/opportunity_repository.dart';
 import 'package:tf_news/pages/widgets/nav_bar.dart';
 import 'package:tf_news/pages/widgets/opportunities_header.dart';
 import 'package:tf_news/pages/widgets/opportunity_card.dart';
@@ -35,19 +37,50 @@ class HomeScreen extends StatelessWidget {
                     children: [
                       const OpportunitiesHeader(),
                       const SizedBox(height: 16),
-                      GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        gridDelegate:
-                            const SliverGridDelegateWithMaxCrossAxisExtent(
-                              maxCrossAxisExtent: 500, // fixed card width
-                              mainAxisExtent: 350, // fixed card height
+                      FutureBuilder<List<Opportunity>>(
+                        future: OpportunityRepository().getOpportunities(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 40),
+                              child: Center(child: CircularProgressIndicator()),
+                            );
+                          }
+
+                          if (snapshot.hasError) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 40),
+                              child: Center(
+                                child: Text('Something went wrong: ${snapshot.error}'),
+                              ),
+                            );
+                          }
+
+                          final opportunities = snapshot.data ?? [];
+
+                          if (opportunities.isEmpty) {
+                            return const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 40),
+                              child: Center(child: Text('No opportunities yet')),
+                            );
+                          }
+
+                          return GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            gridDelegate:
+                                const SliverGridDelegateWithMaxCrossAxisExtent(
+                              maxCrossAxisExtent: 500,
+                              mainAxisExtent: 350,
                               crossAxisSpacing: 35,
                               mainAxisSpacing: 35,
                             ),
-                        itemCount: 6,
-                        itemBuilder: (context, index) =>
-                            const OpportunityCard(),
+                            itemCount: opportunities.length,
+                            itemBuilder: (context, index) => OpportunityCard(
+                              opportunity: opportunities[index],
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),

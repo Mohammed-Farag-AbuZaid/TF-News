@@ -2,8 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tf_news/data/opportunity_model.dart';
 
 class OpportunityRepository {
-  final CollectionReference _opportunitiesRef =
-      FirebaseFirestore.instance.collection('opportunities');
+  final CollectionReference _opportunitiesRef = FirebaseFirestore.instance
+      .collection('opportunities');
 
   Future<List<Opportunity>> getOpportunities({
     String? category,
@@ -22,5 +22,14 @@ class OpportunityRepository {
     final snapshot = await query.get();
 
     return snapshot.docs.map((doc) => Opportunity.fromFirestore(doc)).toList();
+  }
+
+  Future<Opportunity?> getOpportunityById(String id) async {
+    final doc = await _opportunitiesRef.doc(id).get();
+
+    if (!doc.exists) {
+      return null;
+    }
+    return Opportunity.fromFirestore(doc);
   }
 }
