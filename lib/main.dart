@@ -7,7 +7,6 @@ import 'package:tf_news/app.dart';
 import 'package:tf_news/authentication/controllers/user_controller.dart';
 import 'package:tf_news/authentication/repositories/authentication_repositrories.dart';
 import 'package:tf_news/authentication/repositories/user_repository.dart';
-import 'package:tf_news/data/dummy_data.dart';
 import 'package:tf_news/firebase_options.dart';
 
 

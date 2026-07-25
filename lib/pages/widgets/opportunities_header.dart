@@ -5,6 +5,25 @@ class OpportunitiesHeader extends StatelessWidget {
     super.key,
   });
 
+  void popupMenu(Widget content, BuildContext context) {
+    final RenderBox overlay = Overlay.of(context)!.context.findRenderObject() as RenderBox;
+    final RenderBox box = context.findRenderObject() as RenderBox;
+    final Offset position = - box.localToGlobal(Offset.zero);
+
+    showMenu<void>(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        position.dx,
+        position.dy,
+        overlay.size.width - position.dx,
+        overlay.size.height - position.dy,
+      ),
+      items: [
+        PopupMenuItem<void>(child: content),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -21,7 +40,9 @@ class OpportunitiesHeader extends StatelessWidget {
               ),
         ),
         InkWell(
-          onTap: () {},
+          onTap: () {
+            popupMenu(Text('just A joke why you need more filters'), context);
+          },
           borderRadius: BorderRadius.circular(8),
           child: Container(
             padding: const EdgeInsets.symmetric(

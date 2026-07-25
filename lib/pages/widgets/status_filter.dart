@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:tf_news/pages/widgets/status_column.dart';
 
 class StatusFilter extends StatelessWidget {
+  final ValueChanged<String>? onFilterSelected;
+
   const StatusFilter({
     super.key,
+    this.onFilterSelected,
   });
 
   @override
@@ -16,7 +19,7 @@ class StatusFilter extends StatelessWidget {
         ),
         color: Colors.grey[200],
       ),
-      child: StatusColumn(),
+      child: StatusColumn(onFilterSelected: onFilterSelected),
     );
   }
 }

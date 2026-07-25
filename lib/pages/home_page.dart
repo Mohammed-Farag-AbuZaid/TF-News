@@ -7,8 +7,78 @@ import 'package:tf_news/pages/widgets/opportunity_card.dart';
 import 'package:tf_news/pages/widgets/status_filter.dart';
 import 'package:tf_news/pages/widgets/topic_related_filter.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final OpportunityRepository _repository = OpportunityRepository();
+
+  String? _selectedCategory; // null = "All"
+  String? _selectedTopic; // null = "All Opportunities"
+  String _selectedStatus = 'Active'; // matches StatusColumn's default
+
+  late Future<List<Opportunity>> _opportunitiesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _opportunitiesFuture = _fetchOpportunities();
+  }
+
+  Future<List<Opportunity>> _fetchOpportunities() {
+    return _repository.getOpportunities(
+      category: _selectedCategory,
+      topic: _selectedTopic,
+    );
+  }
+
+  void _refetch() {
+    setState(() {
+      _opportunitiesFuture = _fetchOpportunities();
+    });
+  }
+
+  void _onCategorySelected(String category) {
+    _selectedCategory = category == 'All' ? null : category;
+    _refetch();
+  }
+
+  void _onTopicSelected(String topic) {
+    _selectedTopic = topic == 'All Opportunities' ? null : topic;
+    _refetch();
+  }
+
+  void _onStatusSelected(String status) {
+    setState(() {
+      _selectedStatus = status;
+      // status is applied client-side below, no need to hit Firestore again
+    });
+  }
+
+  List<Opportunity> _applyStatusFilter(List<Opportunity> opportunities) {
+    final now = DateTime.now();
+
+    switch (_selectedStatus) {
+      case 'Active':
+        return opportunities
+            .where((o) => o.startDate.isBefore(now) && o.deadline.isAfter(now))
+            .toList();
+      case 'Ended':
+        return opportunities.where((o) => o.deadline.isBefore(now)).toList();
+      case 'Upcoming':
+        return opportunities.where((o) => o.startDate.isAfter(now)).toList();
+      case 'Most Popular':
+        final sorted = [...opportunities];
+        sorted.sort((a, b) => b.ratingCount.compareTo(a.ratingCount));
+        return sorted;
+      default:
+        return opportunities;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,16 +88,16 @@ class HomeScreen extends StatelessWidget {
         child: ListView(
           children: [
             const SizedBox(height: 20),
-            const NavBar(),
+            NavBar(onCategorySelected: _onCategorySelected),
             const Divider(),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Column(
                   children: [
-                    TopicRelatedFilter(),
+                    TopicRelatedFilter(onFilterSelected: _onTopicSelected),
                     const SizedBox(height: 16),
-                    StatusFilter(),
+                    StatusFilter(onFilterSelected: _onStatusSelected),
                   ],
                 ),
                 const SizedBox(width: 16),
@@ -38,7 +108,7 @@ class HomeScreen extends StatelessWidget {
                       const OpportunitiesHeader(),
                       const SizedBox(height: 16),
                       FutureBuilder<List<Opportunity>>(
-                        future: OpportunityRepository().getOpportunities(),
+                        future: _opportunitiesFuture,
                         builder: (context, snapshot) {
                           if (snapshot.connectionState == ConnectionState.waiting) {
                             return const Padding(
@@ -56,12 +126,13 @@ class HomeScreen extends StatelessWidget {
                             );
                           }
 
-                          final opportunities = snapshot.data ?? [];
+                          final opportunities =
+                              _applyStatusFilter(snapshot.data ?? []);
 
                           if (opportunities.isEmpty) {
                             return const Padding(
                               padding: EdgeInsets.symmetric(vertical: 40),
-                              child: Center(child: Text('No opportunities yet')),
+                              child: Center(child: Text('No opportunities found')),
                             );
                           }
 

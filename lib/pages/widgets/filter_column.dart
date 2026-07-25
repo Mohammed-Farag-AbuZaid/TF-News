@@ -63,4 +63,3 @@ class _FilterColumnState extends State<FilterColumn> {
     );
   }
 }
-

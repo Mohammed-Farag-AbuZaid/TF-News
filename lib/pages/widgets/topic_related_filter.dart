@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:tf_news/pages/widgets/filter_column.dart';
 
 class TopicRelatedFilter extends StatelessWidget {
+  final ValueChanged<String>? onFilterSelected;
+
   const TopicRelatedFilter({
     super.key,
+    this.onFilterSelected,
   });
 
   @override
@@ -16,7 +19,7 @@ class TopicRelatedFilter extends StatelessWidget {
         ),
         color: Colors.grey[200],
       ),
-      child: FilterColumn(),
+      child: FilterColumn(onFilterSelected: onFilterSelected),
     );
   }
 }
