@@ -15,6 +15,7 @@ class Opportunity {
   final String link;
   final int ratingCount;
   final bool mustKnow;
+  final List<String> voters;
 
   Opportunity({
     required this.id,
@@ -31,6 +32,7 @@ class Opportunity {
     required this.link,
     required this.ratingCount,
     this.mustKnow = false,
+    this.voters = const [],
   });
 
   factory Opportunity.fromFirestore(DocumentSnapshot doc) {
@@ -50,6 +52,7 @@ class Opportunity {
       link: data['link'] ?? '',
       ratingCount: (data['ratingCount'] as num?)?.toInt() ?? 0,
       mustKnow: data['mustKnow'] as bool? ?? false,
+      voters: List<String>.from(data['voters'] ?? []),
     );
   }
 }
