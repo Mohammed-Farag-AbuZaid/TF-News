@@ -1,10 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_instance/src/extension_instance.dart';
-import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'package:get/get_state_manager/src/simple/get_controllers.dart';
+import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:tf_news/authentication/screens/changeinfo.dart';
@@ -25,11 +22,6 @@ class AuthenticationRepository extends GetxController {
 
   User? get authUser => _auth.currentUser;
 
-  @override
-  void onReady() {
-    screenRedirect();
-  }
-
   void screenRedirect() async {
     final user = _auth.currentUser;
 
@@ -39,6 +31,9 @@ class AuthenticationRepository extends GetxController {
             .collection('users')
             .doc(user.uid)
             .get();
+
+        await Future.microtask(() {});
+
         if (!doc.exists ||
             (doc.data() ?? {})['firstName'] == null ||
             (doc.data()!['lastName'] as String).isEmpty) {
@@ -55,9 +50,11 @@ class AuthenticationRepository extends GetxController {
           Get.offAll(() => const HomeScreen());
         }
       } else {
+        await Future.microtask(() {});
         Get.offAll(() => const EmailVerification());
       }
     } else {
+      await Future.microtask(() {});
       Get.offAll(() => const LoginScreen());
     }
   }
@@ -116,6 +113,7 @@ class AuthenticationRepository extends GetxController {
         await _googleSignIn.signOut();
       } catch (_) {}
       await FirebaseAuth.instance.signOut();
+      await Future.microtask(() {});
       Get.offAll(() => const LoginScreen());
     } on FirebaseAuthException catch (e) {
       throw TFirebaseAuthException(e.code).message;
@@ -134,9 +132,7 @@ class AuthenticationRepository extends GetxController {
       }
 
       final GoogleSignInAccount userAccount = await _googleSignIn.authenticate();
-
       final GoogleSignInAuthentication googleAuth = userAccount.authentication;
-
       final credentials = GoogleAuthProvider.credential(
         idToken: googleAuth.idToken,
       );

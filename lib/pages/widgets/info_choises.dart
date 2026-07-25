@@ -15,7 +15,7 @@ class _InfoChoisesState extends State<InfoChoises> {
     FilterItem('About', Icons.info_outline),
     FilterItem('Requirements', Icons.checklist),
     FilterItem('Benefits', Icons.card_giftcard),
-    FilterItem('Guidelines', Icons.rule_outlined),
+    FilterItem('Guide', Icons.rule_outlined),
   ];
 
   String selected = 'About';
