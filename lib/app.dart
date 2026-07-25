@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tf_news/bindings/general_bindings.dart';
+import 'package:tf_news/pages/home_page.dart';
 import 'package:tf_news/pages/opportunity_page.dart';
 import 'package:tf_news/utils/constants/colors.dart';
 import 'package:tf_news/utils/theme/theme.dart';
@@ -24,6 +25,10 @@ class App extends StatelessWidget {
       },
       getPages: [
         GetPage(name: '/opportunity/:id', page: () => const OpportunityPage()),
+        GetPage(
+          name: '/must-know',
+          page: () => const HomeScreen(initialCategory: 'Must-know'),
+        ),
       ],
       home: const Scaffold(
         body: Center(child: CircularProgressIndicator(color: TColors.primary)),

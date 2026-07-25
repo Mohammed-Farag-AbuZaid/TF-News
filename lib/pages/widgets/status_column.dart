@@ -15,7 +15,6 @@ class _StatusColumnState extends State<StatusColumn> {
     FilterItem('Active', Icons.bolt),
     FilterItem('Ended', Icons.event_busy),
     FilterItem('Upcoming', Icons.upcoming_outlined),
-    FilterItem('Most Popular', Icons.local_fire_department),
   ];
 
   String selected = 'Active';

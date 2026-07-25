@@ -6,24 +6,25 @@ class OpportunityRepository {
       .collection('opportunities');
 
   Future<List<Opportunity>> getOpportunities({
-    String? category,
-    String? topic,
-  }) async {
-    Query query = _opportunitiesRef;
+  String? category,
+  String? topic,
+  bool? mustKnow,
+}) async {
+  Query query = _opportunitiesRef;
 
-    if (category != null && category.isNotEmpty) {
-      query = query.where('category', isEqualTo: category);
-    }
-
-    if (topic != null && topic.isNotEmpty) {
-      query = query.where('topic', isEqualTo: topic);
-    }
-
-    final snapshot = await query.get();
-
-    return snapshot.docs.map((doc) => Opportunity.fromFirestore(doc)).toList();
+  if (mustKnow == true) {
+    query = query.where('mustKnow', isEqualTo: true);
+  } else if (category != null && category.isNotEmpty) {
+    query = query.where('category', isEqualTo: category);
   }
 
+  if (topic != null && topic.isNotEmpty) {
+    query = query.where('topic', isEqualTo: topic);
+  }
+
+  final snapshot = await query.get();
+  return snapshot.docs.map((doc) => Opportunity.fromFirestore(doc)).toList();
+}
   Future<Opportunity?> getOpportunityById(String id) async {
     final doc = await _opportunitiesRef.doc(id).get();
 

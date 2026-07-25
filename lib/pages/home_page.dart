@@ -8,7 +8,8 @@ import 'package:tf_news/pages/widgets/status_filter.dart';
 import 'package:tf_news/pages/widgets/topic_related_filter.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final String initialCategory;
+  const HomeScreen({super.key, this.initialCategory = 'All'});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -17,22 +18,24 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final OpportunityRepository _repository = OpportunityRepository();
 
-  String? _selectedCategory; // null = "All"
-  String? _selectedTopic; // null = "All Opportunities"
-  String _selectedStatus = 'Active'; // matches StatusColumn's default
+  late String? _selectedCategory;
+  String? _selectedTopic;
+  String _selectedStatus = 'Active';
 
   late Future<List<Opportunity>> _opportunitiesFuture;
 
   @override
   void initState() {
     super.initState();
+    _selectedCategory = widget.initialCategory == 'All' ? null : widget.initialCategory;
     _opportunitiesFuture = _fetchOpportunities();
   }
 
   Future<List<Opportunity>> _fetchOpportunities() {
     return _repository.getOpportunities(
-      category: _selectedCategory,
+      category: _selectedCategory == 'Must-know' ? null : _selectedCategory,
       topic: _selectedTopic,
+      mustKnow: _selectedCategory == 'Must-know' ? true : null,
     );
   }
 
@@ -55,7 +58,6 @@ class _HomeScreenState extends State<HomeScreen> {
   void _onStatusSelected(String status) {
     setState(() {
       _selectedStatus = status;
-      // status is applied client-side below, no need to hit Firestore again
     });
   }
 
@@ -88,7 +90,10 @@ class _HomeScreenState extends State<HomeScreen> {
         child: ListView(
           children: [
             const SizedBox(height: 20),
-            NavBar(onCategorySelected: _onCategorySelected),
+            NavBar(
+              initialCategory: widget.initialCategory,
+              onCategorySelected: _onCategorySelected,
+            ),
             const Divider(),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -126,8 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             );
                           }
 
-                          final opportunities =
-                              _applyStatusFilter(snapshot.data ?? []);
+                          final opportunities = _applyStatusFilter(snapshot.data ?? []);
 
                           if (opportunities.isEmpty) {
                             return const Padding(
@@ -139,8 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           return GridView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            gridDelegate:
-                                const SliverGridDelegateWithMaxCrossAxisExtent(
+                            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                               maxCrossAxisExtent: 500,
                               mainAxisExtent: 350,
                               crossAxisSpacing: 35,

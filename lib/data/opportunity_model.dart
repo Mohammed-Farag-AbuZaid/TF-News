@@ -14,6 +14,7 @@ class Opportunity {
   final String topic;
   final String link;
   final int ratingCount;
+  final bool mustKnow;
 
   Opportunity({
     required this.id,
@@ -29,6 +30,7 @@ class Opportunity {
     required this.topic,
     required this.link,
     required this.ratingCount,
+    this.mustKnow = false,
   });
 
   factory Opportunity.fromFirestore(DocumentSnapshot doc) {
@@ -47,6 +49,7 @@ class Opportunity {
       topic: data['topic'] ?? '',
       link: data['link'] ?? '',
       ratingCount: (data['ratingCount'] as num?)?.toInt() ?? 0,
+      mustKnow: data['mustKnow'] as bool? ?? false,
     );
   }
 }

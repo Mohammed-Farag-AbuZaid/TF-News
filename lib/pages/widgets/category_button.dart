@@ -18,33 +18,38 @@ class CategoryButton extends StatelessWidget {
     return TextButton(
       onPressed: onTap,
       style: ButtonStyle(
-        backgroundColor: WidgetStatePropertyAll(
-          isSelected ? TColors.primary : TColors.primary.withValues(alpha: 0.08),
+        backgroundColor: MaterialStatePropertyAll(
+          isSelected ? TColors.primary : TColors.primary.withOpacity(0.08),
         ),
-        foregroundColor: WidgetStatePropertyAll(
+        foregroundColor: MaterialStatePropertyAll(
           isSelected ? Colors.white : TColors.primary,
         ),
-        shape: WidgetStatePropertyAll(
+        shape: MaterialStatePropertyAll(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
             side: BorderSide(
               color: isSelected
                   ? TColors.primary
-                  : TColors.primary.withValues(alpha: 0.2),
+                  : TColors.primary.withOpacity(0.2),
             ),
           ),
         ),
-        padding: const WidgetStatePropertyAll(
+        padding: const MaterialStatePropertyAll(
           EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         ),
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
       ),
       child: Text(
         label,
-        style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: isSelected ? Colors.white : TColors.primary,
-            ),
+        style: (label == 'Must-know')
+            ? Theme.of(context).textTheme.labelLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: isSelected ? Colors.red : Colors.red.withOpacity(0.8),
+              )
+            : Theme.of(context).textTheme.labelLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: isSelected ? Colors.white : TColors.primary,
+              ),
       ),
     );
   }

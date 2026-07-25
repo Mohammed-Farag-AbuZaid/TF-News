@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:tf_news/pages/widgets/category_button.dart';
 
 class NavBar extends StatefulWidget {
   final ValueChanged<String>? onCategorySelected;
+  final String initialCategory;
 
-  const NavBar({super.key, this.onCategorySelected});
+  const NavBar({super.key, this.onCategorySelected, this.initialCategory = 'All'});
 
   @override
   State<NavBar> createState() => _NavBarState();
@@ -13,6 +15,7 @@ class NavBar extends StatefulWidget {
 class _NavBarState extends State<NavBar> {
   final List<String> categories = const [
     'All',
+    'Must-know',
     'Competitions',
     'Events',
     'Programs',
@@ -21,7 +24,13 @@ class _NavBarState extends State<NavBar> {
     'More',
   ];
 
-  String selected = 'All';
+  late String selected;
+
+  @override
+  void initState() {
+    super.initState();
+    selected = widget.initialCategory;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +58,9 @@ class _NavBarState extends State<NavBar> {
                         isSelected: category == selected,
                         onTap: () {
                           setState(() => selected = category);
+                          if (category == 'Must-know') {
+                            Get.toNamed('/must-know');
+                          }
                           widget.onCategorySelected?.call(category);
                         },
                       ),
