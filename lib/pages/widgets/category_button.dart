@@ -18,23 +18,23 @@ class CategoryButton extends StatelessWidget {
     return TextButton(
       onPressed: onTap,
       style: ButtonStyle(
-        backgroundColor: MaterialStatePropertyAll(
-          isSelected ? TColors.primary : TColors.primary.withOpacity(0.08),
+        backgroundColor: WidgetStatePropertyAll(
+          isSelected ? TColors.primary : TColors.primary.withValues(alpha: 0.08),
         ),
-        foregroundColor: MaterialStatePropertyAll(
+        foregroundColor: WidgetStatePropertyAll(
           isSelected ? Colors.white : TColors.primary,
         ),
-        shape: MaterialStatePropertyAll(
+        shape: WidgetStatePropertyAll(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
             side: BorderSide(
               color: isSelected
                   ? TColors.primary
-                  : TColors.primary.withOpacity(0.2),
+                  : TColors.primary.withValues(alpha: 0.2),
             ),
           ),
         ),
-        padding: const MaterialStatePropertyAll(
+        padding: const WidgetStatePropertyAll(
           EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         ),
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -44,7 +44,7 @@ class CategoryButton extends StatelessWidget {
         style: (label == 'Must-know')
             ? Theme.of(context).textTheme.labelLarge?.copyWith(
                 fontWeight: FontWeight.w600,
-                color: isSelected ? Colors.red : Colors.red.withOpacity(0.8),
+                color: isSelected ? Colors.red : Colors.red.withValues(alpha: 0.8),
               )
             : Theme.of(context).textTheme.labelLarge?.copyWith(
                 fontWeight: FontWeight.w600,

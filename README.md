@@ -2,11 +2,11 @@
 
 > Built to help ambitious students find their best opportunities faster.
 
-Part of the **TF Unions** platform — connected to a live Firebase database with opportunities across Competitions, Events, Programs, Volunteering, Scholarships, and more. Each category can be filtered by topic (Research, Mathematics, Physics, Computer Science, Biology, Chemistry, Sustainability, STEM) and status (Active, Upcoming, Ended).
+TF-News is a project that I made to help ambitious students like STEM students and standout student in Egypt to find the suitable opportunities faster. I made it using flutter and firebase.
 
 ---
 
-## Try it out
+## Tester Account
 
 **Email:** mohamed.farag.21.2.2009@gmail.com  
 **Password:** mmffaass1
@@ -15,7 +15,7 @@ Part of the **TF Unions** platform — connected to a live Firebase database wit
 
 ## How it works
 
-- Login with your TF-Account or the test account above
+- Login with your TF-Account or the tester account above
 - Browse and filter opportunities from the home page  
 ![Home page](image.png)
 - Vote on opportunities you find valuable
@@ -36,19 +36,6 @@ Part of the **TF Unions** platform — connected to a live Firebase database wit
 | Database | Firebase Firestore |
 | Authentication | Firebase Auth + Google Sign-In |
 | Image Storage | Cloudinary |
-
----
-
-## Get Started
-
-```bash
-git clone https://github.com/your-username/tf-news
-cd tf-news
-flutter pub get
-flutter run -d chrome
-```
-
-> Requires Flutter 3.12+ and a configured `firebase_options.dart`. The app is built for Flutter Web.
 
 ---
 

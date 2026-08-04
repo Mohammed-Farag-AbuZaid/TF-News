@@ -41,17 +41,26 @@ class _OpportunityCardState extends State<OpportunityCard> {
           'ratingCount': FieldValue.increment(-1),
           'voters': FieldValue.arrayRemove([uid]),
         });
-        setState(() { _hasVoted = false; _ratingCount--; });
+        setState(() {
+          _hasVoted = false;
+          _ratingCount--;
+        });
       } else {
         await ref.update({
           'ratingCount': FieldValue.increment(1),
           'voters': FieldValue.arrayUnion([uid]),
         });
-        setState(() { _hasVoted = true; _ratingCount++; });
+        setState(() {
+          _hasVoted = true;
+          _ratingCount++;
+        });
       }
     } catch (_) {
-      Get.snackbar('Error', 'Could not register your vote.',
-          snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar(
+        'Error',
+        'Could not register your vote.',
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } finally {
       setState(() => _voting = false);
     }
@@ -63,14 +72,6 @@ class _OpportunityCardState extends State<OpportunityCard> {
     if (diff == 0) return 'Today';
     if (diff == 1) return '1 day left';
     return '$diff days left';
-  }
-
-  Color _deadlineColor() {
-    final diff = widget.opportunity.deadline.difference(DateTime.now()).inDays;
-    if (diff < 0) return Colors.grey[400]!;
-    if (diff <= 3) return const Color(0xFFD64045);
-    if (diff <= 7) return const Color(0xFFE07B39);
-    return const Color(0xFF2E7D32);
   }
 
   @override
@@ -104,18 +105,18 @@ class _OpportunityCardState extends State<OpportunityCard> {
                   Container(
                     width: 5,
                     height: 5,
-                    decoration: const BoxDecoration(
-                      color: Colors.red,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[700],
                       shape: BoxShape.circle,
                     ),
                   ),
                   const SizedBox(width: 4),
-                  const Text(
+                  Text(
                     'MUST-KNOW',
                     style: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      color: Colors.red,
+                      color: Colors.grey[700],
                       letterSpacing: 0.9,
                     ),
                   ),
@@ -133,7 +134,7 @@ class _OpportunityCardState extends State<OpportunityCard> {
                               height: 13,
                               child: CircularProgressIndicator(
                                 strokeWidth: 1.5,
-                                color: Colors.amber[600],
+                                color: Colors.grey[400],
                               ),
                             )
                           : Icon(
@@ -142,7 +143,7 @@ class _OpportunityCardState extends State<OpportunityCard> {
                                   : Icons.star_outline_rounded,
                               size: 16,
                               color: _hasVoted
-                                  ? Colors.amber[600]
+                                  ? Colors.grey[800]
                                   : Colors.grey[400],
                             ),
                       const SizedBox(width: 3),
@@ -152,7 +153,7 @@ class _OpportunityCardState extends State<OpportunityCard> {
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                           color: _hasVoted
-                              ? Colors.amber[700]
+                              ? Colors.grey[800]
                               : Colors.grey[500],
                         ),
                       ),
@@ -180,7 +181,7 @@ class _OpportunityCardState extends State<OpportunityCard> {
 
             const SizedBox(height: 6),
 
-            // Description — fills remaining space
+            // Description
             Expanded(
               child: Text(
                 widget.opportunity.shortDescription,
@@ -199,14 +200,14 @@ class _OpportunityCardState extends State<OpportunityCard> {
             // Deadline + topic
             Row(
               children: [
-                Icon(Icons.schedule_rounded, size: 12, color: _deadlineColor()),
+                Icon(Icons.schedule_rounded, size: 12, color: Colors.grey[400]),
                 const SizedBox(width: 4),
                 Text(
                   _deadlineText(),
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: _deadlineColor(),
+                    color: Colors.grey[500],
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -222,10 +223,7 @@ class _OpportunityCardState extends State<OpportunityCard> {
                 Expanded(
                   child: Text(
                     widget.opportunity.topic,
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: Colors.grey[400],
-                    ),
+                    style: TextStyle(fontSize: 11, color: Colors.grey[400]),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -251,10 +249,7 @@ class _OpportunityCardState extends State<OpportunityCard> {
                 ),
                 child: const Text(
                   'Explore',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
                 ),
               ),
             ),

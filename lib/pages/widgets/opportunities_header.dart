@@ -6,7 +6,7 @@ class OpportunitiesHeader extends StatelessWidget {
   });
 
   void popupMenu(Widget content, BuildContext context) {
-    final RenderBox overlay = Overlay.of(context)!.context.findRenderObject() as RenderBox;
+    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
     final RenderBox box = context.findRenderObject() as RenderBox;
     final Offset position = - box.localToGlobal(Offset.zero);
 
