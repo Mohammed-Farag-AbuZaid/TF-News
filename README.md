@@ -1,43 +1,38 @@
 # TF-News
 
-> Built to help ambitious students find their best opportunities faster.
-
 TF-News is a project that I made to help ambitious students like STEM students and standout student in Egypt to find the suitable opportunities faster. I made it using flutter and firebase.
 
----
+--
 
 ## Tester Account
 
 **Email:** mohamed.farag.21.2.2009@gmail.com  
 **Password:** mmffaass1
 
----
 
-## How it works
+## How to use it 
 
 - Login with your TF-Account or the tester account above
+![Login](image-3.png)
 - Browse and filter opportunities from the home page  
-![Home page](image.png)
+![Home Page](image-4.png)
 - Vote on opportunities you find valuable
 - Open any opportunity to explore full details  
-![Opportunity page](image-1.png)
+!![opportunity page](image-5.png)
 - Use the left panel to switch between About, Requirements, Benefits, and Guide  
 ![Filters](image-2.png)
 - All content is rendered in Markdown for flexible formatting
 
----
+
 
 ## Tech Stack
 
-| Layer | Technology |
-| --- | --- |
-| Framework | Flutter (Web) |
-| State Management | GetX |
-| Database | Firebase Firestore |
-| Authentication | Firebase Auth + Google Sign-In |
-| Image Storage | Cloudinary |
+- Framework | Flutter
+- Database | Firebase Firestore
+- Authentication | Firebase Auth
 
----
+
+
 
 ## Key Packages
 
