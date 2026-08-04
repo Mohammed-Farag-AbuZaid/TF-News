@@ -9,7 +9,7 @@ TF-News is a project that I made to help ambitious students like STEM students a
 **Email:** mohamed.farag.21.2.2009@gmail.com  
 **Password:** mmffaass1
 
-**Try it out from here : [TF-News](https://tf-news-seven.vercel.app/)
+Try it out from here : [TF-News](https://tf-news-seven.vercel.app/)
 
 ## How to use it 
 
