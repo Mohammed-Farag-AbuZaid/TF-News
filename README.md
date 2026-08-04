@@ -9,11 +9,12 @@ TF-News is a project that I made to help ambitious students like STEM students a
 **Email:** mohamed.farag.21.2.2009@gmail.com  
 **Password:** mmffaass1
 
-**Try it out from here : [TF-News](https://tf-news-pi.vercel.app/)
+**Try it out from here : [TF-News](https://tf-news-seven.vercel.app/)
 
 ## How to use it 
 
 - Login with your TF-Account or the tester account above
+** Note The verification email is sent to your spam so check it 
 ![Login](image-3.png)
 - Browse and filter opportunities from the home page  
 ![Home Page](image-4.png)
