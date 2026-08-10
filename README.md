@@ -27,6 +27,14 @@ Try it out from here : [TF-News](https://tf-news-seven.vercel.app/)
 
 
 
+## Running Locally 
+
+1. Make sure that you have installed [Flutter](https://docs.flutter.dev/get-started/install)
+2. clone the repository and navigate into the project folder.
+3. Run 'flutter pub get' to install dependencies.
+4. Run 'flutter run' and choose your prefered launcher to launch the project.
+
+
 ## Tech Stack
 
 - Framework | Flutter
