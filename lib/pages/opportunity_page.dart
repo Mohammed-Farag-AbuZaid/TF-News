@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:tf_news/data/opportunity_model.dart';
 import 'package:tf_news/data/opportunity_repository.dart';
 import 'package:tf_news/pages/widgets/filter_item.dart';
+import 'package:tf_news/pages/widgets/opportunity_date_label.dart';
 import 'package:tf_news/utils/constants/colors.dart';
 
 class OpportunityPage extends StatefulWidget {
@@ -45,22 +46,6 @@ class _OpportunityPageState extends State<OpportunityPage> {
     }
   }
 
-  String _deadlineText(Opportunity o) {
-    final diff = o.deadline.difference(DateTime.now()).inDays;
-    if (diff < 0) return 'Deadline passed';
-    if (diff == 0) return 'Deadline is today';
-    if (diff == 1) return '1 day left';
-    return '$diff days left';
-  }
-
-  Color _deadlineColor(Opportunity o) {
-    final diff = o.deadline.difference(DateTime.now()).inDays;
-    if (diff < 0) return Colors.grey;
-    if (diff <= 3) return Colors.red;
-    if (diff <= 7) return Colors.orange;
-    return Colors.green;
-  }
-
   @override
   Widget build(BuildContext context) {
     final String? id = Get.parameters['id'];
@@ -88,6 +73,10 @@ class _OpportunityPageState extends State<OpportunityPage> {
   }
 
   Widget _buildContent(Opportunity opportunity) {
+    final dateLabel = opportunity.dateLabel(DateTime.now());
+    final dateColor = dateLabel.color(Colors.green);
+    final deadline = opportunity.deadline;
+
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
       children: [
@@ -178,23 +167,40 @@ class _OpportunityPageState extends State<OpportunityPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _infoRow(
-                    Icons.timer_outlined,
-                    'Deadline',
-                    _deadlineText(opportunity),
-                    valueColor: _deadlineColor(opportunity),
+                    dateLabel.isOpen
+                        ? Icons.timer_outlined
+                        : Icons.event_outlined,
+                    dateLabel.isOpen ? 'Deadline' : 'Next opening',
+                    dateLabel.text,
+                    valueColor: dateColor,
                   ),
+                  if (dateLabel.isOpen && deadline != null) ...[
+                    const SizedBox(height: 12),
+                    _infoRow(
+                      Icons.event_outlined,
+                      'Closes on',
+                      formatOpportunityDate(deadline),
+                    ),
+                  ],
                   const SizedBox(height: 16),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: () async {
-                        final uri = Uri.parse(opportunity.link);
-                        if (await canLaunchUrl(uri)) {
-                          await launchUrl(uri, mode: LaunchMode.externalApplication);
-                        }
-                      },
+                      onPressed: opportunity.link.isEmpty
+                          ? null
+                          : () async {
+                              final uri = Uri.parse(opportunity.link);
+                              if (await canLaunchUrl(uri)) {
+                                await launchUrl(
+                                  uri,
+                                  mode: LaunchMode.externalApplication,
+                                );
+                              }
+                            },
                       icon: const Icon(Icons.open_in_new, size: 16),
-                      label: const Text('Apply Now'),
+                      label: Text(
+                        dateLabel.isOpen ? 'Apply Now' : 'Visit official page',
+                      ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: TColors.primary,
                         foregroundColor: Colors.white,

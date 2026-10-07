@@ -1,53 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:tf_news/data/opportunity_repository.dart';
+import 'package:tf_news/data/opportunity_section.dart';
 import 'package:tf_news/utils/constants/colors.dart';
 
-class _Category {
-  final String title, subtitle, route;
-  final int count;
-  final IconData icon;
-  const _Category({
-    required this.title,
-    required this.subtitle,
-    required this.count,
-    required this.icon,
-    required this.route,
-  });
-}
-
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
-  static const _categories = [
-    _Category(
-      title: 'Scholarships & Admissions',
-      subtitle: 'Find you dream university, within Egypt and abroad',
-      count: 26,
-      icon: Icons.school_outlined,
-      route: '/study',
-    ),
-    _Category(
-      title: 'Extracurricular Activities',
-      subtitle: 'Volunteering, competitions, clubs, teams, and everything beyond academics',
-      count: 12,
-      icon: Icons.groups_outlined,
-      route: '/activities',
-    ),
-    _Category(
-      title: 'Internships',
-      subtitle: 'Real work experience',
-      count: 5,
-      icon: Icons.work_outline,
-      route: '/internships',
-    ),
-    _Category(
-      title: 'Programs',
-      subtitle: 'Research, fellowships, and more',
-      count: 9,
-      icon: Icons.science_outlined,
-      route: '/programs',
-    ),
-  ];
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  late final Future<Map<String, int>> _openCounts;
+
+  @override
+  void initState() {
+    super.initState();
+    _openCounts = OpportunityRepository().getOpenCounts();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,24 +38,38 @@ class HomeScreen extends StatelessWidget {
                     style: t.displaySmall
                         ?.copyWith(fontWeight: FontWeight.w800, height: 1.1)),
                 const SizedBox(height: 6),
-                Text('Stay informed with the latest news and updates. that inrerest ambitious students like you.',
+                Text(
+                    'Stay informed with the latest news and updates that interest ambitious students like you.',
                     style: t.titleMedium?.copyWith(color: Colors.grey)),
                 const SizedBox(height: 24),
                 LayoutBuilder(
                   builder: (context, c) {
                     final cols = c.maxWidth > 600 ? 2 : 1;
-                    return GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: _categories.length,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: cols,
-                        mainAxisSpacing: 12,
-                        crossAxisSpacing: 12,
-                        mainAxisExtent: 230,
-                      ),
-                      itemBuilder: (_, i) =>
-                          _CategoryCard(category: _categories[i]),
+                    return FutureBuilder<Map<String, int>>(
+                      future: _openCounts,
+                      builder: (context, snapshot) {
+                        final counts = snapshot.data; // null while loading/error
+                        return GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: OpportunitySection.all.length,
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: cols,
+                            mainAxisSpacing: 12,
+                            crossAxisSpacing: 12,
+                            mainAxisExtent: 230,
+                          ),
+                          itemBuilder: (_, i) {
+                            final section = OpportunitySection.all[i];
+                            return _SectionCard(
+                              section: section,
+                              openCount:
+                                  counts == null ? null : (counts[section.id] ?? 0),
+                            );
+                          },
+                        );
+                      },
                     );
                   },
                 ),
@@ -97,12 +82,15 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-class _CategoryCard extends StatelessWidget {
-  final _Category category;
-  const _CategoryCard({required this.category});
+class _SectionCard extends StatelessWidget {
+  final OpportunitySection section;
+  final int? openCount; // null = still loading (or failed): show nothing
+
+  const _SectionCard({required this.section, required this.openCount});
 
   @override
   Widget build(BuildContext context) {
+    final count = openCount;
     return Material(
       color: TColors.primaryBackground,
       clipBehavior: Clip.antiAlias,
@@ -111,16 +99,16 @@ class _CategoryCard extends StatelessWidget {
         side: BorderSide(color: TColors.primary),
       ),
       child: InkWell(
-        onTap: () => Get.toNamed(category.route),
+        onTap: () => Get.toNamed(section.route),
         child: Padding(
           padding: const EdgeInsets.all(22),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(category.icon, color: TColors.primary, size: 28),
+              Icon(section.icon, color: TColors.primary, size: 28),
               const SizedBox(height: 14),
               Text(
-                category.title,
+                section.title,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
@@ -131,7 +119,7 @@ class _CategoryCard extends StatelessWidget {
               ),
               const SizedBox(height: 6),
               Text(
-                category.subtitle,
+                section.subtitle,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(color: Colors.black54),
@@ -139,9 +127,14 @@ class _CategoryCard extends StatelessWidget {
               const Spacer(),
               Row(
                 children: [
-                  Text('${category.count} open',
+                  if (count != null)
+                    Text(
+                      count == 0 ? 'See what\'s coming' : '$count open now',
                       style: TextStyle(
-                          color: TColors.primary, fontWeight: FontWeight.w700)),
+                        color: TColors.primary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   const Spacer(),
                   Icon(Icons.arrow_forward, color: TColors.primary),
                 ],

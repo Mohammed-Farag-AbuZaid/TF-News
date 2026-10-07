@@ -45,4 +45,22 @@ class OpportunityRepository{
     }
     return Opportunity.fromFirestore(doc);
   }
+  /// count the opportuniteis number
+  Future<Map<String, int>> getOpenCounts() async {
+    final snapshot = await _opportunitiesRef.get();
+    final now = DateTime.now();
+    final counts = <String, int>{};
+
+    for (final doc in snapshot.docs) {
+      try {
+        final o = Opportunity.fromFirestore(doc);
+        if (o.isOpenAt(now)) {
+          counts[o.section] = (counts[o.section] ?? 0) + 1;
+        }
+      } catch (e) {
+        debugPrint('Skipping bad opportunity ${doc.id}: $e');
+      }
+    }
+    return counts;
+  }
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tf_news/authentication/controllers/user_controller.dart';
 import 'package:tf_news/data/opportunity_model.dart';
+import 'package:tf_news/pages/widgets/opportunity_date_label.dart';
 import 'package:tf_news/utils/constants/colors.dart';
 
 class OpportunityCard extends StatefulWidget {
@@ -41,6 +42,7 @@ class _OpportunityCardState extends State<OpportunityCard> {
           'ratingCount': FieldValue.increment(-1),
           'voters': FieldValue.arrayRemove([uid]),
         });
+        if (!mounted) return;
         setState(() {
           _hasVoted = false;
           _ratingCount--;
@@ -50,6 +52,7 @@ class _OpportunityCardState extends State<OpportunityCard> {
           'ratingCount': FieldValue.increment(1),
           'voters': FieldValue.arrayUnion([uid]),
         });
+        if (!mounted) return;
         setState(() {
           _hasVoted = true;
           _ratingCount++;
@@ -62,20 +65,15 @@ class _OpportunityCardState extends State<OpportunityCard> {
         snackPosition: SnackPosition.BOTTOM,
       );
     } finally {
-      setState(() => _voting = false);
+      if (mounted) setState(() => _voting = false);
     }
-  }
-
-  String _deadlineText() {
-    final diff = widget.opportunity.deadline.difference(DateTime.now()).inDays;
-    if (diff < 0) return 'Deadline passed';
-    if (diff == 0) return 'Today';
-    if (diff == 1) return '1 day left';
-    return '$diff days left';
   }
 
   @override
   Widget build(BuildContext context) {
+    final dateLabel = widget.opportunity.dateLabel(DateTime.now());
+    final dateColor = dateLabel.color(Colors.grey[500]!);
+
     return Card(
       elevation: 0,
       color: Colors.white,
@@ -197,17 +195,25 @@ class _OpportunityCardState extends State<OpportunityCard> {
 
             const SizedBox(height: 12),
 
-            // Deadline + topic
             Row(
               children: [
-                Icon(Icons.schedule_rounded, size: 12, color: Colors.grey[400]),
+                Icon(
+                  dateLabel.isOpen
+                      ? Icons.schedule_rounded
+                      : Icons.event_outlined,
+                  size: 12,
+                  color: dateColor,
+                ),
                 const SizedBox(width: 4),
-                Text(
-                  _deadlineText(),
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.grey[500],
+                Flexible(
+                  child: Text(
+                    dateLabel.text,
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: dateColor,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 const SizedBox(width: 8),
