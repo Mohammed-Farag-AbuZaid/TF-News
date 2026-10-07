@@ -1,41 +1,49 @@
 import 'package:flutter/material.dart';
 import 'package:tf_news/data/opportunity_model.dart';
 import 'package:tf_news/data/opportunity_repository.dart';
+import 'package:tf_news/data/opportunity_section.dart';
 import 'package:tf_news/pages/widgets/nav_bar.dart';
 import 'package:tf_news/pages/widgets/opportunities_header.dart';
 import 'package:tf_news/pages/widgets/opportunity_card.dart';
 import 'package:tf_news/pages/widgets/status_filter.dart';
 import 'package:tf_news/pages/widgets/topic_related_filter.dart';
 
-class ExtraActivites extends StatefulWidget {
+class OpportunitiesPage extends StatefulWidget {
+  final OpportunitySection section;
   final String initialCategory;
-  const ExtraActivites({super.key, this.initialCategory = 'All'});
+  const OpportunitiesPage({
+    super.key,
+    required this.section,
+    this.initialCategory = 'All',
+  });
 
   @override
-  State<ExtraActivites> createState() => _ExtraActivitesState();
+  State<OpportunitiesPage> createState() => _OpportunitiesPageState();
 }
 
-class _ExtraActivitesState extends State<ExtraActivites> {
+class _OpportunitiesPageState extends State<OpportunitiesPage> {
   final OpportunityRepository _repository = OpportunityRepository();
 
-  late String? _selectedCategory;
+  String? _selectedCategory;
   String? _selectedTopic;
-  String _selectedStatus = 'Active';
-
+  String _selectedStatus = 'Open now';
   late Future<List<Opportunity>> _opportunitiesFuture;
 
   @override
   void initState() {
     super.initState();
-    _selectedCategory = widget.initialCategory == 'All' ? null : widget.initialCategory;
+    _selectedCategory =
+        widget.initialCategory == 'All' ? null : widget.initialCategory;
     _opportunitiesFuture = _fetchOpportunities();
   }
 
   Future<List<Opportunity>> _fetchOpportunities() {
+    final isMustKnow = _selectedCategory == OpportunitySection.mustKnow;
     return _repository.getOpportunities(
-      category: _selectedCategory == 'Must-know' ? null : _selectedCategory,
+      section: widget.section.id,
+      category: isMustKnow ? null : _selectedCategory,
       topic: _selectedTopic,
-      mustKnow: _selectedCategory == 'Must-know' ? true : null,
+      mustKnow: isMustKnow ? true : null,
     );
   }
 
@@ -47,11 +55,12 @@ class _ExtraActivitesState extends State<ExtraActivites> {
 
   void _onCategorySelected(String category) {
     _selectedCategory = category == 'All' ? null : category;
+    _selectedTopic = null; 
     _refetch();
   }
 
   void _onTopicSelected(String topic) {
-    _selectedTopic = topic == 'All Opportunities' ? null : topic;
+    _selectedTopic = topic == OpportunitySection.allTopics ? null : topic;
     _refetch();
   }
 
@@ -64,22 +73,24 @@ class _ExtraActivitesState extends State<ExtraActivites> {
   List<Opportunity> _applyStatusFilter(List<Opportunity> opportunities) {
     final now = DateTime.now();
 
-    switch (_selectedStatus) {
-      case 'Active':
-        return opportunities
-            .where((o) => o.startDate.isBefore(now) && o.deadline.isAfter(now))
-            .toList();
-      case 'Ended':
-        return opportunities.where((o) => o.deadline.isBefore(now)).toList();
-      case 'Upcoming':
-        return opportunities.where((o) => o.startDate.isAfter(now)).toList();
-      case 'Most Popular':
-        final sorted = [...opportunities];
-        sorted.sort((a, b) => b.ratingCount.compareTo(a.ratingCount));
-        return sorted;
-      default:
-        return opportunities;
+    bool isOpen(Opportunity o) =>
+        !o.startDate.isAfter(now) && !o.deadline.isBefore(now);
+
+    if (_selectedStatus == 'Upcoming') {
+      return opportunities.where((o) => !isOpen(o)).toList()
+        ..sort((a, b) => _nextOpening(a, now).compareTo(_nextOpening(b, now)));
     }
+
+    return opportunities.where(isOpen).toList()
+      ..sort((a, b) => a.deadline.compareTo(b.deadline));
+  }
+
+  DateTime _nextOpening(Opportunity o, DateTime now) {
+    var d = o.startDate;
+    while (!d.isAfter(now)) {
+      d = DateTime(d.year + 1, d.month, d.day);
+    }
+    return d;
   }
 
   @override
@@ -91,6 +102,7 @@ class _ExtraActivitesState extends State<ExtraActivites> {
           children: [
             const SizedBox(height: 20),
             NavBar(
+              categories: widget.section.categories,
               initialCategory: widget.initialCategory,
               onCategorySelected: _onCategorySelected,
             ),
@@ -100,7 +112,12 @@ class _ExtraActivitesState extends State<ExtraActivites> {
               children: [
                 Column(
                   children: [
-                    TopicRelatedFilter(onFilterSelected: _onTopicSelected),
+                    TopicRelatedFilter(
+                      key: ValueKey('${widget.section.id}-$_selectedCategory'),
+                      title: widget.section.topicsLabel,
+                      topics: widget.section.topicsFor(_selectedCategory),
+                      onFilterSelected: _onTopicSelected,
+                    ),
                     const SizedBox(height: 16),
                     StatusFilter(onFilterSelected: _onStatusSelected),
                   ],
@@ -110,12 +127,13 @@ class _ExtraActivitesState extends State<ExtraActivites> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const OpportunitiesHeader(),
+                      OpportunitiesHeader(title: widget.section.title),
                       const SizedBox(height: 16),
                       FutureBuilder<List<Opportunity>>(
                         future: _opportunitiesFuture,
                         builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
                             return const Padding(
                               padding: EdgeInsets.symmetric(vertical: 40),
                               child: Center(child: CircularProgressIndicator()),
@@ -126,24 +144,28 @@ class _ExtraActivitesState extends State<ExtraActivites> {
                             return Padding(
                               padding: const EdgeInsets.symmetric(vertical: 40),
                               child: Center(
-                                child: Text('Something went wrong: ${snapshot.error}'),
+                                child: Text(
+                                    'Something went wrong: ${snapshot.error}'),
                               ),
                             );
                           }
 
-                          final opportunities = _applyStatusFilter(snapshot.data ?? []);
+                          final opportunities =
+                              _applyStatusFilter(snapshot.data ?? []);
 
                           if (opportunities.isEmpty) {
                             return const Padding(
                               padding: EdgeInsets.symmetric(vertical: 40),
-                              child: Center(child: Text('No opportunities found')),
+                              child:
+                                  Center(child: Text('No opportunities found')),
                             );
                           }
 
                           return GridView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                            gridDelegate:
+                                const SliverGridDelegateWithMaxCrossAxisExtent(
                               maxCrossAxisExtent: 500,
                               mainAxisExtent: 300,
                               crossAxisSpacing: 35,

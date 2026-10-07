@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Opportunity {
   final String id;
+  final String section;
   final String title;
   final String shortDescription;
   final String aboutMarkdown;
@@ -19,6 +20,7 @@ class Opportunity {
 
   Opportunity({
     required this.id,
+    required this.section,
     required this.title,
     required this.shortDescription,
     required this.aboutMarkdown,
@@ -39,6 +41,7 @@ class Opportunity {
     final data = doc.data() as Map<String, dynamic>;
     return Opportunity(
       id: doc.id,
+      section: data['section'] ?? '',
       title: data['title'] ?? '',
       shortDescription: data['shortDescription'] ?? '',
       aboutMarkdown: data['aboutMarkdown'] ?? '',

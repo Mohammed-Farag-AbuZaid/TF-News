@@ -91,7 +91,6 @@ class _OpportunityPageState extends State<OpportunityPage> {
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
       children: [
-        // Back button + breadcrumb
         Row(
           children: [
             InkWell(
@@ -113,7 +112,6 @@ class _OpportunityPageState extends State<OpportunityPage> {
         ),
         const SizedBox(height: 20),
 
-        // Title + meta row
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -121,7 +119,6 @@ class _OpportunityPageState extends State<OpportunityPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Category + Must-know badge
                   Row(
                     children: [
                       if (opportunity.mustKnow) ...[

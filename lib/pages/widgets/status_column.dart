@@ -12,12 +12,11 @@ class StatusColumn extends StatefulWidget {
 
 class _StatusColumnState extends State<StatusColumn> {
   final List<FilterItem> items = const [
-    FilterItem('Active', Icons.bolt),
-    FilterItem('Ended', Icons.event_busy),
+    FilterItem('Open now', Icons.bolt),
     FilterItem('Upcoming', Icons.upcoming_outlined),
   ];
 
-  String selected = 'Active';
+  String selected = 'Open now';
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +34,7 @@ class _StatusColumnState extends State<StatusColumn> {
           ),
           const SizedBox(height: 2),
           Text(
-            'Status Related Filters',
+            'Open now or coming soon',
             style: Theme.of(
               context,
             ).textTheme.bodySmall?.copyWith(color: Colors.grey[500]),

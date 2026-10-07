@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 
 class OpportunitiesHeader extends StatelessWidget {
+  final String title;
+
   const OpportunitiesHeader({
     super.key,
+    required this.title,
   });
 
   void popupMenu(Widget content, BuildContext context) {
-    final RenderBox overlay = Overlay.of(context).context.findRenderObject() as RenderBox;
+    final RenderBox overlay =
+        Overlay.of(context).context.findRenderObject() as RenderBox;
     final RenderBox box = context.findRenderObject() as RenderBox;
-    final Offset position = - box.localToGlobal(Offset.zero);
+    final Offset position = -box.localToGlobal(Offset.zero);
 
     showMenu<void>(
       context: context,
@@ -30,18 +34,18 @@ class OpportunitiesHeader extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
-          'Opportunities',
-          style: Theme.of(context)
-              .textTheme
-              .headlineSmall
-              ?.copyWith(
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.5,
-              ),
+          title,
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.5,
+          ),
         ),
         InkWell(
           onTap: () {
-            popupMenu(Text('just A joke why you need more filters'), context);
+            popupMenu(
+              const Text('just A joke why you need more filters'),
+              context,
+            );
           },
           borderRadius: BorderRadius.circular(8),
           child: Container(

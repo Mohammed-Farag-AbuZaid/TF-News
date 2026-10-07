@@ -1,29 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:tf_news/pages/widgets/category_button.dart';
 
 class NavBar extends StatefulWidget {
+  final List<String> categories;
   final ValueChanged<String>? onCategorySelected;
   final String initialCategory;
 
-  const NavBar({super.key, this.onCategorySelected, this.initialCategory = 'All'});
+  const NavBar({
+    super.key,
+    required this.categories,
+    this.onCategorySelected,
+    this.initialCategory = 'All',
+  });
 
   @override
   State<NavBar> createState() => _NavBarState();
 }
 
 class _NavBarState extends State<NavBar> {
-  final List<String> categories = const [
-    'All',
-    'Must-know',
-    'Competitions',
-    'Events',
-    'Programs',
-    'Volunteering',
-    'Scholarships',
-    'More',
-  ];
-
   late String selected;
 
   @override
@@ -49,7 +43,7 @@ class _NavBarState extends State<NavBar> {
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
-              children: categories
+              children: widget.categories
                   .map(
                     (category) => Padding(
                       padding: const EdgeInsets.only(right: 8),
@@ -58,9 +52,6 @@ class _NavBarState extends State<NavBar> {
                         isSelected: category == selected,
                         onTap: () {
                           setState(() => selected = category);
-                          if (category == 'Must-know') {
-                            Get.toNamed('/must-know');
-                          }
                           widget.onCategorySelected?.call(category);
                         },
                       ),
