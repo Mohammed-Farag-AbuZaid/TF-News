@@ -29,6 +29,10 @@ class _OpportunitiesPageState extends State<OpportunitiesPage> {
   String _selectedStatus = 'Open now';
   late Future<List<Opportunity>> _opportunitiesFuture;
 
+  OpportunityStatus get _status => _selectedStatus == 'Upcoming'
+      ? OpportunityStatus.upcoming
+      : OpportunityStatus.open;
+
   @override
   void initState() {
     super.initState();
@@ -55,7 +59,7 @@ class _OpportunitiesPageState extends State<OpportunitiesPage> {
 
   void _onCategorySelected(String category) {
     _selectedCategory = category == 'All' ? null : category;
-    _selectedTopic = null; 
+    _selectedTopic = null; // topics change with the tab, so reset the choice
     _refetch();
   }
 
@@ -68,29 +72,6 @@ class _OpportunitiesPageState extends State<OpportunitiesPage> {
     setState(() {
       _selectedStatus = status;
     });
-  }
-
-  List<Opportunity> _applyStatusFilter(List<Opportunity> opportunities) {
-    final now = DateTime.now();
-
-    bool isOpen(Opportunity o) =>
-        !o.startDate.isAfter(now) && !o.deadline.isBefore(now);
-
-    if (_selectedStatus == 'Upcoming') {
-      return opportunities.where((o) => !isOpen(o)).toList()
-        ..sort((a, b) => _nextOpening(a, now).compareTo(_nextOpening(b, now)));
-    }
-
-    return opportunities.where(isOpen).toList()
-      ..sort((a, b) => a.deadline.compareTo(b.deadline));
-  }
-
-  DateTime _nextOpening(Opportunity o, DateTime now) {
-    var d = o.startDate;
-    while (!d.isAfter(now)) {
-      d = DateTime(d.year + 1, d.month, d.day);
-    }
-    return d;
   }
 
   @override
@@ -113,6 +94,7 @@ class _OpportunitiesPageState extends State<OpportunitiesPage> {
                 Column(
                   children: [
                     TopicRelatedFilter(
+                      // new key = fresh selection whenever the tab changes
                       key: ValueKey('${widget.section.id}-$_selectedCategory'),
                       title: widget.section.topicsLabel,
                       topics: widget.section.topicsFor(_selectedCategory),
@@ -151,7 +133,7 @@ class _OpportunitiesPageState extends State<OpportunitiesPage> {
                           }
 
                           final opportunities =
-                              _applyStatusFilter(snapshot.data ?? []);
+                              (snapshot.data ?? []).forStatus(_status);
 
                           if (opportunities.isEmpty) {
                             return const Padding(

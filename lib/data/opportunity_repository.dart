@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 import 'package:tf_news/data/opportunity_model.dart';
 
-class OpportunityRepository {
+class OpportunityRepository{
   final CollectionReference _opportunitiesRef =
       FirebaseFirestore.instance.collection('opportunities');
 
@@ -24,7 +25,16 @@ class OpportunityRepository {
     }
 
     final snapshot = await query.get();
-    return snapshot.docs.map((doc) => Opportunity.fromFirestore(doc)).toList();
+
+    final result = <Opportunity>[];
+    for (final doc in snapshot.docs) {
+      try {
+        result.add(Opportunity.fromFirestore(doc));
+      } catch (e) {
+        debugPrint('Skipping bad opportunity ${doc.id}: $e');
+      }
+    }
+    return result;
   }
 
   Future<Opportunity?> getOpportunityById(String id) async {
