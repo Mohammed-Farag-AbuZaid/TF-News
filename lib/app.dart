@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tf_news/authentication/repositories/authentication_repositrories.dart';
 import 'package:tf_news/bindings/general_bindings.dart';
+import 'package:tf_news/pages/extra_activites.dart';
 import 'package:tf_news/pages/home_page.dart';
 import 'package:tf_news/pages/opportunity_page.dart';
 import 'package:tf_news/utils/constants/colors.dart';
@@ -50,7 +51,7 @@ class _AppState extends State<App> {
         ),
         GetPage(
           name: '/must-know',
-          page: () => const HomeScreen(initialCategory: 'Must-know'),
+          page: () => const HomeScreen(),
         ),
         GetPage(
           name: '/HomeScreen',

@@ -1,167 +1,153 @@
 import 'package:flutter/material.dart';
-import 'package:tf_news/data/opportunity_model.dart';
-import 'package:tf_news/data/opportunity_repository.dart';
-import 'package:tf_news/pages/widgets/nav_bar.dart';
-import 'package:tf_news/pages/widgets/opportunities_header.dart';
-import 'package:tf_news/pages/widgets/opportunity_card.dart';
-import 'package:tf_news/pages/widgets/status_filter.dart';
-import 'package:tf_news/pages/widgets/topic_related_filter.dart';
+import 'package:get/get.dart';
+import 'package:tf_news/utils/constants/colors.dart';
 
-class HomeScreen extends StatefulWidget {
-  final String initialCategory;
-  const HomeScreen({super.key, this.initialCategory = 'All'});
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
+class _Category {
+  final String title, subtitle, route;
+  final int count;
+  final IconData icon;
+  const _Category({
+    required this.title,
+    required this.subtitle,
+    required this.count,
+    required this.icon,
+    required this.route,
+  });
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  final OpportunityRepository _repository = OpportunityRepository();
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
 
-  late String? _selectedCategory;
-  String? _selectedTopic;
-  String _selectedStatus = 'Active';
-
-  late Future<List<Opportunity>> _opportunitiesFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _selectedCategory = widget.initialCategory == 'All' ? null : widget.initialCategory;
-    _opportunitiesFuture = _fetchOpportunities();
-  }
-
-  Future<List<Opportunity>> _fetchOpportunities() {
-    return _repository.getOpportunities(
-      category: _selectedCategory == 'Must-know' ? null : _selectedCategory,
-      topic: _selectedTopic,
-      mustKnow: _selectedCategory == 'Must-know' ? true : null,
-    );
-  }
-
-  void _refetch() {
-    setState(() {
-      _opportunitiesFuture = _fetchOpportunities();
-    });
-  }
-
-  void _onCategorySelected(String category) {
-    _selectedCategory = category == 'All' ? null : category;
-    _refetch();
-  }
-
-  void _onTopicSelected(String topic) {
-    _selectedTopic = topic == 'All Opportunities' ? null : topic;
-    _refetch();
-  }
-
-  void _onStatusSelected(String status) {
-    setState(() {
-      _selectedStatus = status;
-    });
-  }
-
-  List<Opportunity> _applyStatusFilter(List<Opportunity> opportunities) {
-    final now = DateTime.now();
-
-    switch (_selectedStatus) {
-      case 'Active':
-        return opportunities
-            .where((o) => o.startDate.isBefore(now) && o.deadline.isAfter(now))
-            .toList();
-      case 'Ended':
-        return opportunities.where((o) => o.deadline.isBefore(now)).toList();
-      case 'Upcoming':
-        return opportunities.where((o) => o.startDate.isAfter(now)).toList();
-      case 'Most Popular':
-        final sorted = [...opportunities];
-        sorted.sort((a, b) => b.ratingCount.compareTo(a.ratingCount));
-        return sorted;
-      default:
-        return opportunities;
-    }
-  }
+  static const _categories = [
+    _Category(
+      title: 'Scholarships & Admissions',
+      subtitle: 'Find you dream university, within Egypt and abroad',
+      count: 26,
+      icon: Icons.school_outlined,
+      route: '/study',
+    ),
+    _Category(
+      title: 'Extracurricular Activities',
+      subtitle: 'Volunteering, competitions, clubs, teams, and everything beyond academics',
+      count: 12,
+      icon: Icons.groups_outlined,
+      route: '/activities',
+    ),
+    _Category(
+      title: 'Internships',
+      subtitle: 'Real work experience',
+      count: 5,
+      icon: Icons.work_outline,
+      route: '/internships',
+    ),
+    _Category(
+      title: 'Programs',
+      subtitle: 'Research, fellowships, and more',
+      count: 9,
+      icon: Icons.science_outlined,
+      route: '/programs',
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
+    final t = Theme.of(context).textTheme;
     return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: ListView(
-          children: [
-            const SizedBox(height: 20),
-            NavBar(
-              initialCategory: widget.initialCategory,
-              onCategorySelected: _onCategorySelected,
-            ),
-            const Divider(),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 900),
+            child: ListView(
+              padding: const EdgeInsets.all(20),
               children: [
-                Column(
-                  children: [
-                    TopicRelatedFilter(onFilterSelected: _onTopicSelected),
-                    const SizedBox(height: 16),
-                    StatusFilter(onFilterSelected: _onStatusSelected),
-                  ],
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const OpportunitiesHeader(),
-                      const SizedBox(height: 16),
-                      FutureBuilder<List<Opportunity>>(
-                        future: _opportunitiesFuture,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 40),
-                              child: Center(child: CircularProgressIndicator()),
-                            );
-                          }
-
-                          if (snapshot.hasError) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 40),
-                              child: Center(
-                                child: Text('Something went wrong: ${snapshot.error}'),
-                              ),
-                            );
-                          }
-
-                          final opportunities = _applyStatusFilter(snapshot.data ?? []);
-
-                          if (opportunities.isEmpty) {
-                            return const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 40),
-                              child: Center(child: Text('No opportunities found')),
-                            );
-                          }
-
-                          return GridView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                              maxCrossAxisExtent: 500,
-                              mainAxisExtent: 300,
-                              crossAxisSpacing: 35,
-                              mainAxisSpacing: 35,
-                            ),
-                            itemCount: opportunities.length,
-                            itemBuilder: (context, index) => OpportunityCard(
-                              opportunity: opportunities[index],
-                            ),
-                          );
-                        },
+                Text('TF News',
+                    style: t.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+                const SizedBox(height: 28),
+                Text('Welcome back, Bob!',
+                    style: t.displaySmall
+                        ?.copyWith(fontWeight: FontWeight.w800, height: 1.1)),
+                const SizedBox(height: 6),
+                Text('Stay informed with the latest news and updates. that inrerest ambitious students like you.',
+                    style: t.titleMedium?.copyWith(color: Colors.grey)),
+                const SizedBox(height: 24),
+                LayoutBuilder(
+                  builder: (context, c) {
+                    final cols = c.maxWidth > 600 ? 2 : 1;
+                    return GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: _categories.length,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: cols,
+                        mainAxisSpacing: 12,
+                        crossAxisSpacing: 12,
+                        mainAxisExtent: 230,
                       ),
-                    ],
-                  ),
+                      itemBuilder: (_, i) =>
+                          _CategoryCard(category: _categories[i]),
+                    );
+                  },
                 ),
               ],
             ),
-          ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CategoryCard extends StatelessWidget {
+  final _Category category;
+  const _CategoryCard({required this.category});
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: TColors.primaryBackground,
+      clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+        side: BorderSide(color: TColors.primary),
+      ),
+      child: InkWell(
+        onTap: () => Get.toNamed(category.route),
+        child: Padding(
+          padding: const EdgeInsets.all(22),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(category.icon, color: TColors.primary, size: 28),
+              const SizedBox(height: 14),
+              Text(
+                category.title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 22,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                category.subtitle,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: Colors.black54),
+              ),
+              const Spacer(),
+              Row(
+                children: [
+                  Text('${category.count} open',
+                      style: TextStyle(
+                          color: TColors.primary, fontWeight: FontWeight.w700)),
+                  const Spacer(),
+                  Icon(Icons.arrow_forward, color: TColors.primary),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -7,10 +7,10 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:tf_news/authentication/screens/changeinfo.dart';
 import 'package:tf_news/authentication/screens/email_verification.dart';
 import 'package:tf_news/authentication/screens/loging/login.dart';
-import 'package:tf_news/pages/home_page.dart';
 import 'package:tf_news/utils/exceptions/firebase_auth_exceptions.dart';
 import 'package:tf_news/utils/exceptions/firebase_exceptions.dart';
 import 'package:tf_news/utils/exceptions/formate_exceptions.dart';
+import 'package:tf_news/pages/home_page.dart';
 
 class AuthenticationRepository extends GetxController {
   static AuthenticationRepository get instance => Get.find();
