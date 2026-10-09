@@ -1,7 +1,7 @@
+// lib/pages/home_page.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tf_news/data/opportunity_repository.dart';
-import 'package:tf_news/data/opportunity_section.dart';
+import 'package:tf_news/data/opportunity.dart';
 import 'package:tf_news/utils/constants/colors.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -64,8 +64,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             final section = OpportunitySection.all[i];
                             return _SectionCard(
                               section: section,
-                              openCount:
-                                  counts == null ? null : (counts[section.id] ?? 0),
+                              openCount: counts == null
+                                  ? null
+                                  : (counts[section.id] ?? 0),
                             );
                           },
                         );

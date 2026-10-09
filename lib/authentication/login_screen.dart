@@ -1,15 +1,64 @@
+// lib/authentication/login_screen.dart
+// Contains: LoginScreen, LoginHeader, LoginForm
 import 'package:flutter/material.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_instance/src/extension_instance.dart';
-import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
+import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
-import 'package:tf_news/authentication/controllers/loging_controllers.dart';
-import 'package:tf_news/authentication/screens/forget_password.dart';
+import 'package:tf_news/authentication/forget_password_screen.dart';
+import 'package:tf_news/authentication/login_controller.dart';
+import 'package:tf_news/common/common_widgets.dart';
+import 'package:tf_news/utils/constants/image_strings.dart';
 import 'package:tf_news/utils/constants/sizes.dart';
+import 'package:tf_news/utils/helpers/helper_functions.dart';
 import 'package:tf_news/utils/popups/loaders.dart';
 import 'package:tf_news/utils/validators/validation.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+class LoginScreen extends StatelessWidget {
+  const LoginScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final dark = THelperFunctions.isDarkMode(context);
+
+    // NOTE: the "Sign in with Google" button was commented out in the original.
+    // LoginController.googleLogin() still exists if you want to bring it back.
+    return Scaffold(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: TSpacingStyle.paddingWithAppBarHieght,
+          child: Column(
+            children: [
+              LoginHeader(dark: dark),
+              const LoginForm(),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class LoginHeader extends StatelessWidget {
+  const LoginHeader({super.key, required this.dark});
+
+  final bool dark;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Image(height: 150, image: AssetImage(TImages.tfLogo)),
+        Text('Welcome Back', style: Theme.of(context).textTheme.headlineMedium),
+        const SizedBox(height: TSizes.sm),
+        Text(
+          'Login Using Your TF Account',
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+      ],
+    );
+  }
+}
 
 class LoginForm extends StatelessWidget {
   const LoginForm({super.key});
@@ -23,10 +72,9 @@ class LoginForm extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: TSizes.spaceBwSections),
         child: Column(
           children: [
-            // Email
             TextFormField(
               controller: controller.email,
-              validator: ((value) => TValidator.validateEmail(value)),
+              validator: (value) => TValidator.validateEmail(value),
               decoration: const InputDecoration(
                 labelText: "Email",
                 prefixIcon: Icon(Icons.email_outlined),
@@ -34,12 +82,11 @@ class LoginForm extends StatelessWidget {
             ),
             const SizedBox(height: TSizes.spaceBwInputFields),
 
-            // Password
             Obx(
               () => TextFormField(
                 controller: controller.password,
-                validator: ((value) =>
-                    TValidator.validateEmptyText('Password', value)),
+                validator: (value) =>
+                    TValidator.validateEmptyText('Password', value),
                 obscureText: controller.hidePassword.value,
                 decoration: InputDecoration(
                   labelText: "Password",
@@ -58,7 +105,6 @@ class LoginForm extends StatelessWidget {
             ),
             const SizedBox(height: TSizes.spaceBwInputFields / 2),
 
-            // Remember Me & Forgot Password
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -82,30 +128,22 @@ class LoginForm extends StatelessWidget {
             ),
             const SizedBox(height: TSizes.spaceBwSections),
 
-            // Sign In Button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () => controller.emailAndPasswordLogin(),
-                child: Text('Sign In'),
+                child: const Text('Sign In'),
               ),
             ),
-
             const SizedBox(height: TSizes.spaceBwItems),
 
-            // Create Account Button
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
                 onPressed: () async {
-                  final Uri url = Uri.parse(
-                    "https://tfunions.vercel.app/",
-                  );
+                  final Uri url = Uri.parse("https://tfunions.vercel.app/");
                   if (await canLaunchUrl(url)) {
-                    await launchUrl(
-                      url,
-                      mode: LaunchMode.externalApplication, // ← forces browser
-                    );
+                    await launchUrl(url, mode: LaunchMode.externalApplication);
                   } else {
                     TLoaders.errorSnackBar(
                       title: 'Error',

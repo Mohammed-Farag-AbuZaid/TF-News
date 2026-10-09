@@ -1,12 +1,11 @@
+// lib/pages/opportunity_page.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:get/get.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:tf_news/data/opportunity_model.dart';
-import 'package:tf_news/data/opportunity_repository.dart';
-import 'package:tf_news/pages/widgets/filter_item.dart';
-import 'package:tf_news/pages/widgets/opportunity_date_label.dart';
+import 'package:tf_news/data/opportunity.dart';
+import 'package:tf_news/pages/widgets.dart';
 import 'package:tf_news/utils/constants/colors.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class OpportunityPage extends StatefulWidget {
   const OpportunityPage({super.key});
@@ -25,8 +24,8 @@ class _OpportunityPageState extends State<OpportunityPage> {
     FilterItem('Guide', Icons.rule_outlined),
   ];
 
-  Future<void> _onTapLink(String text, String? href, String title) async {
-    if (href == null) return;
+  Future<void> _openLink(String? href) async {
+    if (href == null || href.isEmpty) return;
     final uri = Uri.parse(href);
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
@@ -60,7 +59,8 @@ class _OpportunityPageState extends State<OpportunityPage> {
             return const Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
-            return Center(child: Text('Something went wrong: ${snapshot.error}'));
+            return Center(
+                child: Text('Something went wrong: ${snapshot.error}'));
           }
 
           final opportunity = snapshot.data;
@@ -88,7 +88,8 @@ class _OpportunityPageState extends State<OpportunityPage> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.arrow_back_ios_new, size: 14, color: Colors.grey),
+                  const Icon(Icons.arrow_back_ios_new,
+                      size: 14, color: Colors.grey),
                   const SizedBox(width: 4),
                   Text(
                     'Back',
@@ -108,29 +109,27 @@ class _OpportunityPageState extends State<OpportunityPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      if (opportunity.mustKnow) ...[
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.red.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: const Text(
-                            'MUST-KNOW',
-                            style: TextStyle(
-                              color: Colors.red,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.8,
-                            ),
+                  if (opportunity.mustKnow)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.red.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: const Text(
+                          'MUST-KNOW',
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.8,
                           ),
                         ),
-                      ],
-                    ],
-                  ),
+                      ),
+                    ),
                   const SizedBox(height: 12),
                   Text(
                     opportunity.title,
@@ -188,15 +187,7 @@ class _OpportunityPageState extends State<OpportunityPage> {
                     child: ElevatedButton.icon(
                       onPressed: opportunity.link.isEmpty
                           ? null
-                          : () async {
-                              final uri = Uri.parse(opportunity.link);
-                              if (await canLaunchUrl(uri)) {
-                                await launchUrl(
-                                  uri,
-                                  mode: LaunchMode.externalApplication,
-                                );
-                              }
-                            },
+                          : () => _openLink(opportunity.link),
                       icon: const Icon(Icons.open_in_new, size: 16),
                       label: Text(
                         dateLabel.isOpen ? 'Apply Now' : 'Visit official page',
@@ -225,7 +216,6 @@ class _OpportunityPageState extends State<OpportunityPage> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Left sidebar
             Container(
               width: 200,
               decoration: BoxDecoration(
@@ -254,7 +244,8 @@ class _OpportunityPageState extends State<OpportunityPage> {
                       icon: item.icon,
                       label: item.label,
                       isSelected: item.label == _selectedSection,
-                      onTap: () => setState(() => _selectedSection = item.label),
+                      onTap: () =>
+                          setState(() => _selectedSection = item.label),
                     ),
                   ),
                 ],
@@ -262,7 +253,6 @@ class _OpportunityPageState extends State<OpportunityPage> {
             ),
             const SizedBox(width: 24),
 
-            // Markdown content
             Expanded(
               child: AnimatedSwitcher(
                 duration: const Duration(milliseconds: 200),
@@ -276,10 +266,9 @@ class _OpportunityPageState extends State<OpportunityPage> {
                   padding: const EdgeInsets.all(20),
                   child: MarkdownBody(
                     data: _getMarkdown(opportunity),
-                    onTapLink: _onTapLink,
-                    styleSheet: MarkdownStyleSheet.fromTheme(
-                      Theme.of(context),
-                    ).copyWith(
+                    onTapLink: (text, href, title) => _openLink(href),
+                    styleSheet:
+                        MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
                       p: TextStyle(
                         fontSize: 15,
                         color: Colors.grey[700],
@@ -305,7 +294,10 @@ class _OpportunityPageState extends State<OpportunityPage> {
     );
   }
 
-  Widget _infoRow(IconData icon, String label, String value, {
+  Widget _infoRow(
+    IconData icon,
+    String label,
+    String value, {
     Color? iconColor,
     Color? valueColor,
   }) {
@@ -320,7 +312,11 @@ class _OpportunityPageState extends State<OpportunityPage> {
             children: [
               Text(
                 label,
-                style: TextStyle(fontSize: 11, color: Colors.grey[500], fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  fontSize: 11,
+                  color: Colors.grey[500],
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               Text(
                 value,

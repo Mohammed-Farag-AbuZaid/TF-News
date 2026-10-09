@@ -1,11 +1,9 @@
+// lib/authentication/login_controller.dart
 import 'package:flutter/material.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_instance/src/extension_instance.dart';
-import 'package:get/get_rx/src/rx_types/rx_types.dart';
-import 'package:get/get_state_manager/src/simple/get_controllers.dart';
+import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:tf_news/authentication/controllers/user_controller.dart';
-import 'package:tf_news/authentication/repositories/authentication_repositrories.dart';
+import 'package:tf_news/authentication/authentication_repository.dart';
+import 'package:tf_news/authentication/user_controller.dart';
 import 'package:tf_news/utils/helpers/network_manager.dart';
 import 'package:tf_news/utils/popups/full_screen_loader.dart';
 import 'package:tf_news/utils/popups/loaders.dart';
@@ -80,17 +78,15 @@ class LoginController extends GetxController {
         );
         return;
       }
-      final userCredentials = await AuthenticationRepository.instance
-          .signInWithGoogle();
+      final userCredentials =
+          await AuthenticationRepository.instance.signInWithGoogle();
       final isNewUser =
           userCredentials?.additionalUserInfo?.isNewUser ?? false;
       if (isNewUser) {
         await userController.saveUserRecord(userCredentials);
       }
 
-      // Remove Loader
       TFuelScreenLoader.stopLoading();
-      // Redirect to the appropriate screen
       AuthenticationRepository.instance.screenRedirect();
     } catch (e) {
       TFuelScreenLoader.stopLoading();

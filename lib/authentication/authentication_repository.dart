@@ -1,16 +1,17 @@
+// lib/authentication/authentication_repository.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:tf_news/authentication/screens/changeinfo.dart';
-import 'package:tf_news/authentication/screens/email_verification.dart';
-import 'package:tf_news/authentication/screens/loging/login.dart';
+import 'package:tf_news/authentication/change_academic_info_screen.dart';
+import 'package:tf_news/authentication/email_verification_screen.dart';
+import 'package:tf_news/authentication/login_screen.dart';
+import 'package:tf_news/pages/home_page.dart';
 import 'package:tf_news/utils/exceptions/firebase_auth_exceptions.dart';
 import 'package:tf_news/utils/exceptions/firebase_exceptions.dart';
 import 'package:tf_news/utils/exceptions/formate_exceptions.dart';
-import 'package:tf_news/pages/home_page.dart';
 
 class AuthenticationRepository extends GetxController {
   static AuthenticationRepository get instance => Get.find();
@@ -131,7 +132,8 @@ class AuthenticationRepository extends GetxController {
         _googleSignInInitialized = true;
       }
 
-      final GoogleSignInAccount userAccount = await _googleSignIn.authenticate();
+      final GoogleSignInAccount userAccount =
+          await _googleSignIn.authenticate();
       final GoogleSignInAuthentication googleAuth = userAccount.authentication;
       final credentials = GoogleAuthProvider.credential(
         idToken: googleAuth.idToken,

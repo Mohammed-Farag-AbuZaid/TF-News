@@ -1,13 +1,13 @@
+// lib/authentication/user_repository.dart
 import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_instance/src/extension_instance.dart';
-import 'package:get/get_state_manager/src/rx_flutter/rx_disposable.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
-import 'package:tf_news/authentication/models/user_model.dart';
+import 'package:tf_news/authentication/user_model.dart';
 import 'package:tf_news/utils/exceptions/firebase_exceptions.dart';
 import 'package:tf_news/utils/exceptions/formate_exceptions.dart';
 
@@ -17,6 +17,7 @@ class UserRepository extends GetxService {
   static const String _cloudinaryCloudName = 'ddf0yaapn';
 
   FirebaseFirestore get _db => FirebaseFirestore.instance;
+
   Future<void> saveUserRecord(UserModel user) async {
     try {
       final docRef = _db.collection("users").doc(user.id);
@@ -35,12 +36,13 @@ class UserRepository extends GetxService {
     }
   }
 
-  Future<UserModel> fetchUserDetails() async {
+  Future<UserModel> fetchUserDetails() =>
+      fetchUserById(FirebaseAuth.instance.currentUser?.uid ?? '');
+
+  /// Fetch user details by user ID
+  Future<UserModel> fetchUserById(String userId) async {
     try {
-      final documentSnapshot = await _db
-          .collection("users")
-          .doc(FirebaseAuth.instance.currentUser?.uid)
-          .get();
+      final documentSnapshot = await _db.collection("users").doc(userId).get();
       if (documentSnapshot.exists) {
         return UserModel.fromSnapshot(documentSnapshot);
       } else {
@@ -85,7 +87,6 @@ class UserRepository extends GetxService {
     }
   }
 
-  /// Function to remove user data from Firestore.
   Future<void> removeUserRecord(String userId) async {
     try {
       await _db.collection("users").doc(userId).delete();
@@ -98,7 +99,7 @@ class UserRepository extends GetxService {
     }
   }
 
-  /// upload any image
+  /// Upload any image to Cloudinary
   Future<String> uploadImage(String uploadPreset, XFile image) async {
     try {
       final url = Uri.parse(
@@ -124,22 +125,4 @@ class UserRepository extends GetxService {
       throw 'Something went wrong while uploading the image: $e';
     }
   }
-
-  /// Fetch user details by user ID
-  Future<UserModel> fetchUserById(String userId) async {
-  try {
-    final documentSnapshot = await _db.collection("users").doc(userId).get();
-    if (documentSnapshot.exists) {
-      return UserModel.fromSnapshot(documentSnapshot);
-    } else {
-      return UserModel.empty();
-    }
-  } on FirebaseException catch (e) {
-    throw TFirebaseException(e.code).message;
-  } on FormatException catch (_) {
-    throw const TFormatException();
-  } catch (e) {
-    throw 'Something went wrong. Please try again';
-  }
-}
 }

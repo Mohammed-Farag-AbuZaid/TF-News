@@ -4,9 +4,9 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:tf_news/app.dart';
-import 'package:tf_news/authentication/controllers/user_controller.dart';
-import 'package:tf_news/authentication/repositories/authentication_repositrories.dart';
-import 'package:tf_news/authentication/repositories/user_repository.dart';
+import 'package:tf_news/authentication/authentication_repository.dart';
+import 'package:tf_news/authentication/user_controller.dart';
+import 'package:tf_news/authentication/user_repository.dart';
 import 'package:tf_news/firebase_options.dart';
 
 

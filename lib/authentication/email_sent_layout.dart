@@ -1,32 +1,28 @@
-// email_verification.dart
-import 'package:flutter/cupertino.dart';
+// lib/authentication/email_sent_layout.dart
+// Shared layout for the "we sent you an email" screens
+// (ResetPassword and EmailVerification).
+import 'package:flutter/cupertino.dart' show CupertinoIcons;
 import 'package:flutter/material.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_instance/src/extension_instance.dart';
-import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'package:tf_news/authentication/controllers/email_verification_controller.dart';
-import 'package:tf_news/authentication/repositories/authentication_repositrories.dart';
-import 'package:tf_news/authentication/screens/loging/login.dart';
+import 'package:get/get.dart';
+import 'package:tf_news/authentication/login_screen.dart';
 import 'package:tf_news/utils/constants/image_strings.dart';
 import 'package:tf_news/utils/constants/sizes.dart';
 import 'package:tf_news/utils/helpers/helper_functions.dart';
 
+class EmailSentLayout extends StatelessWidget {
+  const EmailSentLayout({
+    super.key,
+    required this.title,
+    required this.message,
+    required this.onResend,
+  });
 
-class EmailVerification extends StatelessWidget {
-  const EmailVerification({super.key, this.title, this.message});
-
-  final String? title;
-  final String? message;
+  final String title;
+  final String message;
+  final VoidCallback? onResend; // null hides the resend button
 
   @override
   Widget build(BuildContext context) {
-    final String title = this.title ?? 'Verification Email Sent';
-    final String message = this.message ??
-        'your Account Security is our top priority. We have sent you an email with instructions to verify your email address.';
-
-    final controller = Get.put(EmailVerificationController());
-    final userEmail = AuthenticationRepository.instance.authUser?.email ?? '';
-
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -42,14 +38,11 @@ class EmailVerification extends StatelessWidget {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              // Image
               Image(
                 image: const AssetImage(TImages.receiveEmail),
                 width: THelperFunctions.screenWidth() * 0.6,
               ),
               const SizedBox(height: TSizes.spaceBwSections),
-
-              /// Title and Subtitle
               Text(
                 title,
                 style: Theme.of(context).textTheme.headlineMedium,
@@ -62,8 +55,6 @@ class EmailVerification extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: TSizes.spaceBwSections * 2),
-
-              /// Continue Button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -71,13 +62,12 @@ class EmailVerification extends StatelessWidget {
                   child: const Text("Done"),
                 ),
               ),
-              SizedBox(height: TSizes.spaceBwItems),
-
-              TextButton(
-                onPressed: () =>
-                    controller.resendEmailVerificationEmail(userEmail),
-                child: const Text("Resend Email"),
-              ),
+              const SizedBox(height: TSizes.spaceBwItems),
+              if (onResend != null)
+                TextButton(
+                  onPressed: onResend,
+                  child: const Text("Resend Email"),
+                ),
             ],
           ),
         ),

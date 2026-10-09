@@ -1,12 +1,7 @@
+// lib/pages/opportunities_page.dart
 import 'package:flutter/material.dart';
-import 'package:tf_news/data/opportunity_model.dart';
-import 'package:tf_news/data/opportunity_repository.dart';
-import 'package:tf_news/data/opportunity_section.dart';
-import 'package:tf_news/pages/widgets/nav_bar.dart';
-import 'package:tf_news/pages/widgets/opportunities_header.dart';
-import 'package:tf_news/pages/widgets/opportunity_card.dart';
-import 'package:tf_news/pages/widgets/status_filter.dart';
-import 'package:tf_news/pages/widgets/topic_related_filter.dart';
+import 'package:tf_news/data/opportunity.dart';
+import 'package:tf_news/pages/widgets.dart';
 
 class OpportunitiesPage extends StatefulWidget {
   final OpportunitySection section;

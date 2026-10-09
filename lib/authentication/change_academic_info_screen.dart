@@ -1,8 +1,8 @@
+// lib/authentication/change_academic_info_screen.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tf_news/authentication/screens/loging/login.dart';
-import 'package:tf_news/common/widgets/appbar/appbar.dart';
-import 'package:tf_news/common/widgets/buttons/visit_tf_button.dart';
+import 'package:tf_news/authentication/login_screen.dart';
+import 'package:tf_news/common/common_widgets.dart';
 import 'package:tf_news/utils/constants/sizes.dart';
 
 class ChangeAcademicInfo extends StatelessWidget {
@@ -25,10 +25,7 @@ class ChangeAcademicInfo extends StatelessWidget {
     return Scaffold(
       appBar: TAppBar(
         showBackArrow: showBackArrow,
-        title: Text(
-          title,
-          style: Theme.of(context).textTheme.headlineSmall,
-        ),
+        title: Text(title, style: Theme.of(context).textTheme.headlineSmall),
       ),
       body: Center(
         child: ConstrainedBox(
@@ -45,11 +42,8 @@ class ChangeAcademicInfo extends StatelessWidget {
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
                 const SizedBox(height: TSizes.spaceBwSections),
-
-                VisitTFButton(),
-
+                const VisitTFButton(),
                 const SizedBox(height: TSizes.spaceBwSections),
-
                 if (!fullMessage)
                   SizedBox(
                     width: double.infinity,

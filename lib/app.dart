@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:tf_news/authentication/repositories/authentication_repositrories.dart';
+import 'package:tf_news/authentication/authentication_repository.dart';
 import 'package:tf_news/bindings/general_bindings.dart';
-import 'package:tf_news/data/opportunity_section.dart';
+import 'package:tf_news/data/opportunity.dart';
 import 'package:tf_news/pages/opportunities_page.dart';
 import 'package:tf_news/pages/home_page.dart';
 import 'package:tf_news/pages/opportunity_page.dart';

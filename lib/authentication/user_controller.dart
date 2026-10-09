@@ -1,12 +1,9 @@
-
+// lib/authentication/user_controller.dart
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_instance/src/extension_instance.dart';
-import 'package:get/get_rx/src/rx_types/rx_types.dart';
-import 'package:get/get_state_manager/src/simple/get_controllers.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:tf_news/authentication/models/user_model.dart';
-import 'package:tf_news/authentication/repositories/user_repository.dart';
+import 'package:tf_news/authentication/user_model.dart';
+import 'package:tf_news/authentication/user_repository.dart';
 import 'package:tf_news/utils/popups/loaders.dart';
 
 class UserController extends GetxController {
@@ -43,16 +40,13 @@ class UserController extends GetxController {
   /// Save user Record from any Registration provider
   Future<void> saveUserRecord(UserCredential? userCredentials) async {
     try {
-      /// Refresh user record
       await fetchUserRecord();
 
       if (userCredentials != null) {
-        // Convert Name to First and Last Name
         final nameParts = UserModel.nameParts(
           userCredentials.user!.displayName ?? '',
         );
 
-        // Map Data
         final user = UserModel(
           id: userCredentials.user!.uid,
           firstName: nameParts[0],

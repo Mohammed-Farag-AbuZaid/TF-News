@@ -1,5 +1,4 @@
-
-
+// lib/authentication/user_model.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:tf_news/utils/formatters/formatters.dart';
 
@@ -18,7 +17,6 @@ class UserModel {
   String birthDate;
   final DateTime? registrationDate;
 
-  /// Constructor for UserModel.
   UserModel({
     required this.id,
     required this.firstName,
