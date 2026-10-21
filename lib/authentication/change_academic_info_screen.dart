@@ -1,9 +1,10 @@
 // lib/authentication/change_academic_info_screen.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:tf_news/authentication/auth_kit.dart';
 import 'package:tf_news/authentication/login_screen.dart';
-import 'package:tf_news/common/common_widgets.dart';
-import 'package:tf_news/utils/constants/sizes.dart';
+import 'package:tf_news/utils/ui/tf_minimal.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ChangeAcademicInfo extends StatelessWidget {
   const ChangeAcademicInfo({
@@ -22,40 +23,34 @@ class ChangeAcademicInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: TAppBar(
-        showBackArrow: showBackArrow,
-        title: Text(title, style: Theme.of(context).textTheme.headlineSmall),
-      ),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 600),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(TSizes.defaultSpace),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  fullMessage
-                      ? 'This action cannot be done from here. You can change your $description and all other Academic Info from the TF-Unions website.'
-                      : description,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(height: TSizes.spaceBwSections),
-                const VisitTFButton(),
-                const SizedBox(height: TSizes.spaceBwSections),
-                if (!fullMessage)
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () => Get.offAll(() => const LoginScreen()),
-                      child: const Text('or login with another account'),
-                    ),
-                  ),
-              ],
+    return AuthFrame(
+      showBack: showBackArrow,
+      title: title,
+      subtitle: fullMessage
+          ? 'This action cannot be done from here. You can change your $description and all other Academic Info from the TF-Unions website.'
+          : description,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TfPrimaryButton(
+            label: 'Visit TF-Unions',
+            icon: Icons.open_in_new,
+            expand: true,
+            onPressed: () => launchUrl(
+              Uri.parse('https://tfunions.vercel.app/'),
+              mode: LaunchMode.externalApplication,
             ),
           ),
-        ),
+          if (!fullMessage) ...[
+            const SizedBox(height: 12),
+            Center(
+              child: TfTextAction(
+                label: 'Or log in with another account',
+                onPressed: () => Get.offAll(() => const LoginScreen()),
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }

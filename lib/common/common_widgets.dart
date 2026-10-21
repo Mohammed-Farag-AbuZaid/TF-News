@@ -166,10 +166,6 @@ class TRoundedContainer extends StatelessWidget {
   }
 }
 
-/// Kept as-is (same name, same defaults) so existing usages don't break.
-/// It is nearly identical to [TRoundedContainer]; the only differences are
-/// the parameter name `borderRadius` and the default `TColors.textwhite`.
-/// Once you've replaced its usages you can delete it.
 class TCircularContianer extends StatelessWidget {
   const TCircularContianer({
     super.key,

@@ -1,61 +1,27 @@
 // lib/authentication/login_screen.dart
-// Contains: LoginScreen, LoginHeader, LoginForm
+// Contains: LoginScreen, LoginForm
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:iconsax/iconsax.dart';
+import 'package:tf_news/authentication/auth_kit.dart';
 import 'package:tf_news/authentication/forget_password_screen.dart';
 import 'package:tf_news/authentication/login_controller.dart';
-import 'package:tf_news/common/common_widgets.dart';
-import 'package:tf_news/utils/constants/image_strings.dart';
-import 'package:tf_news/utils/constants/sizes.dart';
-import 'package:tf_news/utils/helpers/helper_functions.dart';
 import 'package:tf_news/utils/popups/loaders.dart';
+import 'package:tf_news/utils/ui/tf_minimal.dart';
 import 'package:tf_news/utils/validators/validation.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+// NOTE: the "Sign in with Google" button stays out, as before.
+// LoginController.googleLogin() still exists if you want to bring it back.
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final dark = THelperFunctions.isDarkMode(context);
-
-    // NOTE: the "Sign in with Google" button was commented out in the original.
-    // LoginController.googleLogin() still exists if you want to bring it back.
-    return Scaffold(
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: TSpacingStyle.paddingWithAppBarHieght,
-          child: Column(
-            children: [
-              LoginHeader(dark: dark),
-              const LoginForm(),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class LoginHeader extends StatelessWidget {
-  const LoginHeader({super.key, required this.dark});
-
-  final bool dark;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Image(height: 150, image: AssetImage(TImages.tfLogo)),
-        Text('Welcome Back', style: Theme.of(context).textTheme.headlineMedium),
-        const SizedBox(height: TSizes.sm),
-        Text(
-          'Login Using Your TF Account',
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-      ],
+    return const AuthFrame(
+      showLogo: true,
+      title: 'Welcome back',
+      subtitle: 'Sign in with your TF account.',
+      child: LoginForm(),
     );
   }
 }
@@ -68,94 +34,103 @@ class LoginForm extends StatelessWidget {
     final controller = Get.put(LoginController());
     return Form(
       key: controller.loginFormKey,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: TSizes.spaceBwSections),
-        child: Column(
-          children: [
-            TextFormField(
-              controller: controller.email,
-              validator: (value) => TValidator.validateEmail(value),
-              decoration: const InputDecoration(
-                labelText: "Email",
-                prefixIcon: Icon(Icons.email_outlined),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextFormField(
+            controller: controller.email,
+            keyboardType: TextInputType.emailAddress,
+            autofillHints: const [AutofillHints.email],
+            validator: (value) => TValidator.validateEmail(value),
+            decoration: authInput('Email', Icons.mail_outline),
+          ),
+          const SizedBox(height: 14),
+          Obx(
+            () => TextFormField(
+              controller: controller.password,
+              obscureText: controller.hidePassword.value,
+              autofillHints: const [AutofillHints.password],
+              validator: (value) =>
+                  TValidator.validateEmptyText('Password', value),
+              onFieldSubmitted: (_) => controller.emailAndPasswordLogin(),
+              decoration: authInput(
+                'Password',
+                Icons.lock_outline,
+                suffix: IconButton(
+                  tooltip: controller.hidePassword.value
+                      ? 'Show password'
+                      : 'Hide password',
+                  icon: Icon(controller.hidePassword.value
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined),
+                  onPressed: () => controller.hidePassword.value =
+                      !controller.hidePassword.value,
+                ),
               ),
             ),
-            const SizedBox(height: TSizes.spaceBwInputFields),
-
-            Obx(
-              () => TextFormField(
-                controller: controller.password,
-                validator: (value) =>
-                    TValidator.validateEmptyText('Password', value),
-                obscureText: controller.hidePassword.value,
-                decoration: InputDecoration(
-                  labelText: "Password",
-                  prefixIcon: const Icon(Iconsax.password_check),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      controller.hidePassword.value
-                          ? Iconsax.eye_slash
-                          : Iconsax.eye,
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Obx(
+                () => InkWell(
+                  onTap: () =>
+                      controller.rememberMe.value = !controller.rememberMe.value,
+                  borderRadius: BorderRadius.circular(8),
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 10, horizontal: 2),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          controller.rememberMe.value
+                              ? Icons.check_box
+                              : Icons.check_box_outline_blank,
+                          size: 22,
+                          color: controller.rememberMe.value
+                              ? tfAccent
+                              : tfMuted,
+                        ),
+                        const SizedBox(width: 8),
+                        const Text('Remember me',
+                            style: TextStyle(color: tfInk, fontSize: 14)),
+                      ],
                     ),
-                    onPressed: () => controller.hidePassword.value =
-                        !controller.hidePassword.value,
                   ),
                 ),
               ),
-            ),
-            const SizedBox(height: TSizes.spaceBwInputFields / 2),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Obx(
-                      () => Checkbox(
-                        value: controller.rememberMe.value,
-                        onChanged: (value) => controller.rememberMe.value =
-                            !controller.rememberMe.value,
-                      ),
-                    ),
-                    const Text("Remember me"),
-                  ],
-                ),
-                TextButton(
-                  onPressed: () => Get.to(() => const ForgetPassword()),
-                  child: const Text("Forgot password?"),
-                ),
-              ],
-            ),
-            const SizedBox(height: TSizes.spaceBwSections),
-
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => controller.emailAndPasswordLogin(),
-                child: const Text('Sign In'),
+              const Spacer(),
+              TfTextAction(
+                label: 'Forgot password?',
+                onPressed: () => Get.to(() => const ForgetPassword()),
               ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          TfPrimaryButton(
+            label: 'Sign in',
+            expand: true,
+            onPressed: () => controller.emailAndPasswordLogin(),
+          ),
+          const SizedBox(height: 12),
+          Center(
+            child: TfTextAction(
+              label: 'Create a TF account',
+              onPressed: () async {
+                final url = Uri.parse('https://tfunions.vercel.app/');
+                if (await canLaunchUrl(url)) {
+                  await launchUrl(url, mode: LaunchMode.externalApplication);
+                } else {
+                  TLoaders.errorSnackBar(
+                    title: 'Error',
+                    message: 'Could not open the link. Please try again.',
+                  );
+                }
+              },
             ),
-            const SizedBox(height: TSizes.spaceBwItems),
-
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                onPressed: () async {
-                  final Uri url = Uri.parse("https://tfunions.vercel.app/");
-                  if (await canLaunchUrl(url)) {
-                    await launchUrl(url, mode: LaunchMode.externalApplication);
-                  } else {
-                    TLoaders.errorSnackBar(
-                      title: 'Error',
-                      message: 'Could not open the link. Please try again.',
-                    );
-                  }
-                },
-                child: const Text("Create a TF account."),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

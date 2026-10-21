@@ -1,9 +1,9 @@
 // lib/authentication/forget_password_screen.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:iconsax/iconsax.dart';
+import 'package:tf_news/authentication/auth_kit.dart';
 import 'package:tf_news/authentication/forget_password_controller.dart';
-import 'package:tf_news/utils/constants/sizes.dart';
+import 'package:tf_news/utils/ui/tf_minimal.dart';
 import 'package:tf_news/utils/validators/validation.dart';
 
 class ForgetPassword extends StatelessWidget {
@@ -12,41 +12,27 @@ class ForgetPassword extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(ForgetPasswordController());
-    return Scaffold(
-      appBar: AppBar(title: const Text('Forget Password')),
-      body: Padding(
-        padding: const EdgeInsets.all(TSizes.defaultSpace),
+    return AuthFrame(
+      showBack: true,
+      title: 'Reset your password',
+      subtitle: "Enter your email and we'll send you a link to set a new one.",
+      child: Form(
+        key: controller.forgetPasswordFormKey,
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Forget Password ?',
-              style: Theme.of(context).textTheme.headlineMedium,
+            TextFormField(
+              controller: controller.email,
+              keyboardType: TextInputType.emailAddress,
+              validator: TValidator.validateEmail,
+              onFieldSubmitted: (_) => controller.sendPasswordResetEmail(),
+              decoration: authInput('Email', Icons.mail_outline),
             ),
-            const SizedBox(height: TSizes.spaceBwItems),
-            Text(
-              'Please enter your email address to reset your password.',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-            const SizedBox(height: TSizes.spaceBwItems * 2),
-            Form(
-              key: controller.forgetPasswordFormKey,
-              child: TextFormField(
-                controller: controller.email,
-                validator: TValidator.validateEmail,
-                decoration: const InputDecoration(
-                  labelText: "Email",
-                  prefixIcon: Icon(Iconsax.direct_right),
-                ),
-              ),
-            ),
-            const SizedBox(height: TSizes.spaceBwItems * 2),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () => controller.sendPasswordResetEmail(),
-                child: const Text('Submit'),
-              ),
+            const SizedBox(height: 24),
+            TfPrimaryButton(
+              label: 'Send reset link',
+              expand: true,
+              onPressed: () => controller.sendPasswordResetEmail(),
             ),
           ],
         ),

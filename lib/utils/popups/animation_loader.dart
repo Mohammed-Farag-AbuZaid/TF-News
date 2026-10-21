@@ -24,16 +24,19 @@ class TAnimationLoaderWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Lottie.asset(
-            animation,
-            width: MediaQuery.of(context).size.width * 8.8,
+          // Was "screen width x 8.8", which made the animation thousands of
+          // pixels tall and overflowed the screen by 1000+ px.
+          SizedBox(
+            width: 220,
+            height: 220,
+            child: Lottie.asset(animation, fit: BoxFit.contain),
           ),
           const SizedBox(height: TSizes.defaultSpace),
           Text(
             text,
             style: Theme.of(context).textTheme.bodyMedium,
             textAlign: TextAlign.center,
-          ), // Text
+          ),
           const SizedBox(height: TSizes.defaultSpace),
           showAction
               ? SizedBox(

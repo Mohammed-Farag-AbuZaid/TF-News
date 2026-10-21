@@ -1,11 +1,22 @@
 // lib/pages/opportunity_page.dart
+// One opportunity: headline, key facts, the main action, then the details as
+// one calm reading column (no tabs to hunt through).
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:get/get.dart';
 import 'package:tf_news/data/opportunity.dart';
-import 'package:tf_news/pages/widgets.dart';
-import 'package:tf_news/utils/constants/colors.dart';
+import 'package:tf_news/pages/widgets.dart'
+    show DateTone, OpportunityDateLabelX, formatOpportunityDate;
+import 'package:tf_news/utils/ui/tf_minimal.dart';
+import 'package:tf_news/utils/ui/tf_ui.dart' show tfToast;
 import 'package:url_launcher/url_launcher.dart';
+
+class _Sec {
+  final String title;
+  final String markdown;
+  const _Sec(this.title, this.markdown);
+}
 
 class OpportunityPage extends StatefulWidget {
   const OpportunityPage({super.key});
@@ -15,339 +26,311 @@ class OpportunityPage extends StatefulWidget {
 }
 
 class _OpportunityPageState extends State<OpportunityPage> {
-  String _selectedSection = 'About';
+  Future<Opportunity?>? _future;
 
-  final List<FilterItem> _sections = const [
-    FilterItem('About', Icons.info_outline),
-    FilterItem('Requirements', Icons.checklist),
-    FilterItem('Benefits', Icons.card_giftcard),
-    FilterItem('Guide', Icons.rule_outlined),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  void _load() {
+    final id = Get.parameters['id'];
+    if (id != null && id.isNotEmpty) {
+      _future = OpportunityRepository().getOpportunityById(id);
+    }
+  }
 
   Future<void> _openLink(String? href) async {
     if (href == null || href.isEmpty) return;
-    final uri = Uri.parse(href);
+    final uri = Uri.tryParse(href);
+    if (uri == null) return;
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
   }
 
-  String _getMarkdown(Opportunity o) {
-    switch (_selectedSection) {
-      case 'Requirements':
-        return o.requirementsMarkdown;
-      case 'Benefits':
-        return o.benefitsMarkdown;
-      case 'Guide':
-        return o.guidelinesMarkdown;
-      default:
-        return o.aboutMarkdown;
-    }
+  Future<void> _copyLink() async {
+    await Clipboard.setData(ClipboardData(text: Uri.base.toString()));
+    tfToast('Link copied', 'You can paste it anywhere to share this page.');
   }
+
+  String _two(int n) => n.toString().padLeft(2, '0');
+  String _ymd(DateTime d) => '${d.year}${_two(d.month)}${_two(d.day)}';
+
+  Future<void> _addToCalendar(Opportunity o) async {
+    final dl = o.deadline;
+    if (dl == null) return;
+    final next = dl.add(const Duration(days: 1)); // all-day end is exclusive
+    final url = 'https://calendar.google.com/calendar/render?action=TEMPLATE'
+        '&text=${Uri.encodeComponent('Deadline: ${o.title}')}'
+        '&dates=${_ymd(dl)}/${_ymd(next)}'
+        '&details=${Uri.encodeComponent(o.link.isEmpty ? Uri.base.toString() : o.link)}';
+    await _openLink(url);
+  }
+
+  List<_Sec> _sections(Opportunity o) => [
+        _Sec('About', o.aboutMarkdown),
+        _Sec('Requirements', o.requirementsMarkdown),
+        _Sec('Benefits', o.benefitsMarkdown),
+        _Sec('How to apply', o.guidelinesMarkdown),
+      ].where((s) => s.markdown.trim().isNotEmpty).toList();
 
   @override
   Widget build(BuildContext context) {
-    final String? id = Get.parameters['id'];
+    final future = _future;
+    if (future == null) {
+      return _message('Opportunity not found',
+        'The link is incomplete.');
+    }
 
-    if (id == null || id.isEmpty) return _buildNotFound();
+    return FutureBuilder<Opportunity?>(
+      future: future,
+      builder: (context, snap) {
+        if (snap.connectionState == ConnectionState.waiting) {
+          return TfPage(
+            backLabel: 'Back',
+            slivers: (c, l) => [
+              l.gap(48),
+              l.box(const TfRowSkeletons(count: 3)),
+            ],
+          );
+        }
+        if (snap.hasError) {
+          debugPrint('Opportunity failed to load: ${snap.error}');
+          return _message(
+            'We could not load this',
+            'Check your connection and try again.',
+            actionLabel: 'Try again',
+            onAction: () => setState(_load),
+          );
+        }
+        final o = snap.data;
+        if (o == null) {
+          return _message('Opportunity not found',
+              'It may have been removed, or the link is incomplete.');
+        }
+        return _content(o);
+      },
+    );
+  }
 
-    return Scaffold(
-      body: FutureBuilder<Opportunity?>(
-        future: OpportunityRepository().getOpportunityById(id),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(
-                child: Text('Something went wrong: ${snapshot.error}'));
-          }
+  Widget _message(String title, String message,
+      {String? actionLabel, VoidCallback? onAction}) {
+    return TfPage(
+      backLabel: 'Back',
+      slivers: (c, l) => [
+        l.box(TfEmpty(
+          title: title,
+          message: message,
+          actionLabel: actionLabel,
+          onAction: onAction,
+        )),
+      ],
+    );
+  }
 
-          final opportunity = snapshot.data;
-          if (opportunity == null) return _buildNotFound();
+  Widget _content(Opportunity o) {
+    final label = o.dateLabel(DateTime.now());
+    final isOpen = label.isOpen;
+    final urgent = label.tone == DateTone.urgent;
+    final sections = _sections(o);
+    final overline =
+        [o.category, o.topic].where((s) => s.trim().isNotEmpty).join('  ·  ');
+    final applyText = isOpen ? 'Apply now' : 'Visit official page';
 
-          return _buildContent(opportunity);
-        },
+    return TfPage(
+      backLabel: 'Back',
+      maxWidth: 900,
+      bottomBar: (l) => (l.small && o.link.isNotEmpty)
+          ? Container(
+              padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                border: Border(top: BorderSide(color: tfHair, width: 0.5)),
+              ),
+              child: SafeArea(
+                top: false,
+                child: TfPrimaryButton(
+                  label: applyText,
+                  icon: Icons.open_in_new,
+                  expand: true,
+                  onPressed: () => _openLink(o.link),
+                ),
+              ),
+            )
+          : null,
+      slivers: (context, l) => [
+        l.gap(l.small ? 28 : 48),
+        l.box(Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Flexible(
+                  child: Text(overline,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: tfMuted, fontSize: 13)),
+                ),
+                if (o.mustKnow) ...[
+                  const SizedBox(width: 10),
+                  const Text('Must-know',
+                      style: TextStyle(
+                          color: tfUrgent,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600)),
+                ],
+              ],
+            ),
+            const SizedBox(height: 10),
+            Semantics(
+              header: true,
+              child: Text(
+                o.title,
+                style: TextStyle(
+                  color: tfInk,
+                  fontWeight: FontWeight.w700,
+                  height: 1.12,
+                  letterSpacing: l.small ? -0.8 : -1.4,
+                  fontSize: l.small ? 32 : 44,
+                ),
+              ),
+            ),
+            if (o.shortDescription.trim().isNotEmpty) ...[
+              const SizedBox(height: 14),
+              Text(o.shortDescription,
+                  style: const TextStyle(
+                      color: tfMuted, fontSize: 18, height: 1.5)),
+            ],
+          ],
+        )),
+        l.gap(32),
+        l.box(_facts(o, label.text, isOpen, urgent)),
+        l.gap(20),
+        l.box(Wrap(
+          spacing: 12,
+          runSpacing: 4,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            if (!l.small && o.link.isNotEmpty)
+              TfPrimaryButton(
+                label: applyText,
+                icon: Icons.open_in_new,
+                onPressed: () => _openLink(o.link),
+              ),
+            if (isOpen && o.deadline != null)
+              TfTextAction(
+                label: 'Add deadline to calendar',
+                icon: Icons.edit_calendar_outlined,
+                onPressed: () => _addToCalendar(o),
+              ),
+            TfTextAction(
+              label: 'Copy link',
+              icon: Icons.link,
+              onPressed: _copyLink,
+            ),
+          ],
+        )),
+        l.gap(l.small ? 40 : 64),
+        if (sections.isEmpty)
+          l.box(const Text(
+            'Details are coming soon. Use the official page for the latest information.',
+            style: TextStyle(color: tfMuted, height: 1.5),
+          ))
+        else
+          for (final s in sections) l.box(_section(context, s)),
+      ],
+    );
+  }
+
+  Widget _facts(Opportunity o, String dateText, bool isOpen, bool urgent) {
+    Widget fact(String label, String value, {Color? color}) => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(label,
+                style: const TextStyle(color: tfMuted, fontSize: 12)),
+            const SizedBox(height: 4),
+            Text(value,
+                style: TextStyle(
+                    color: color ?? tfInk,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600)),
+          ],
+        );
+
+    final start = o.startDate;
+    final deadline = o.deadline;
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      decoration: const BoxDecoration(
+        border: Border.symmetric(
+          horizontal: BorderSide(color: tfHair, width: 0.5),
+        ),
+      ),
+      child: Wrap(
+        spacing: 44,
+        runSpacing: 20,
+        children: [
+          fact(isOpen ? 'Deadline' : 'Next opening', dateText,
+              color: urgent ? tfUrgent : null),
+          if (isOpen && deadline != null)
+            fact('Closes on', formatOpportunityDate(deadline)),
+          if (!isOpen && start != null)
+            fact('Usually opens', formatOpportunityDate(start)),
+          if (o.topic.isNotEmpty) fact('Field', o.topic),
+          fact('Starred by',
+              '${o.ratingCount} ${o.ratingCount == 1 ? 'student' : 'students'}'),
+        ],
       ),
     );
   }
 
-  Widget _buildContent(Opportunity opportunity) {
-    final dateLabel = opportunity.dateLabel(DateTime.now());
-    final dateColor = dateLabel.color(Colors.green);
-    final deadline = opportunity.deadline;
-
-    return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-      children: [
-        Row(
-          children: [
-            InkWell(
-              onTap: () => Get.back(),
-              borderRadius: BorderRadius.circular(8),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.arrow_back_ios_new,
-                      size: 14, color: Colors.grey),
-                  const SizedBox(width: 4),
-                  Text(
-                    'Back',
-                    style: TextStyle(color: Colors.grey[600], fontSize: 14),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 20),
-
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (opportunity.mustKnow)
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.red.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: const Text(
-                          'MUST-KNOW',
-                          style: TextStyle(
-                            color: Colors.red,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.8,
-                          ),
-                        ),
-                      ),
-                    ),
-                  const SizedBox(height: 12),
-                  Text(
-                    opportunity.title,
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 0.3,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    opportunity.shortDescription,
-                    style: TextStyle(
-                      fontSize: 15,
-                      color: Colors.grey[600],
-                      height: 1.5,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 24),
-
-            // Info card
-            Container(
-              width: 220,
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.grey[50],
-                border: Border.all(color: Colors.grey[200]!),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _infoRow(
-                    dateLabel.isOpen
-                        ? Icons.timer_outlined
-                        : Icons.event_outlined,
-                    dateLabel.isOpen ? 'Deadline' : 'Next opening',
-                    dateLabel.text,
-                    valueColor: dateColor,
-                  ),
-                  if (dateLabel.isOpen && deadline != null) ...[
-                    const SizedBox(height: 12),
-                    _infoRow(
-                      Icons.event_outlined,
-                      'Closes on',
-                      formatOpportunityDate(deadline),
-                    ),
-                  ],
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: opportunity.link.isEmpty
-                          ? null
-                          : () => _openLink(opportunity.link),
-                      icon: const Icon(Icons.open_in_new, size: 16),
-                      label: Text(
-                        dateLabel.isOpen ? 'Apply Now' : 'Visit official page',
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: TColors.primary,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-
-        const SizedBox(height: 32),
-        const Divider(),
-        const SizedBox(height: 24),
-
-        // Section tabs + content
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 200,
-              decoration: BoxDecoration(
-                color: Colors.grey[50],
-                border: Border.all(color: Colors.grey[200]!),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              padding: const EdgeInsets.all(12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 4, bottom: 8),
-                    child: Text(
-                      'SECTIONS',
-                      style: TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.grey[500],
-                        letterSpacing: 1,
-                      ),
-                    ),
-                  ),
-                  ..._sections.map(
-                    (item) => FilterTile(
-                      icon: item.icon,
-                      label: item.label,
-                      isSelected: item.label == _selectedSection,
-                      onTap: () =>
-                          setState(() => _selectedSection = item.label),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 24),
-
-            Expanded(
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                child: Container(
-                  key: ValueKey(_selectedSection),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[50],
-                    border: Border.all(color: Colors.grey[200]!),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.all(20),
-                  child: MarkdownBody(
-                    data: _getMarkdown(opportunity),
-                    onTapLink: (text, href, title) => _openLink(href),
-                    styleSheet:
-                        MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
-                      p: TextStyle(
-                        fontSize: 15,
-                        color: Colors.grey[700],
-                        height: 1.7,
-                      ),
-                      h2: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                      ),
-                      h3: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 40),
-      ],
-    );
-  }
-
-  Widget _infoRow(
-    IconData icon,
-    String label,
-    String value, {
-    Color? iconColor,
-    Color? valueColor,
-  }) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, size: 16, color: iconColor ?? Colors.grey[500]),
-        const SizedBox(width: 8),
-        Expanded(
+  Widget _section(BuildContext context, _Sec s) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 720),
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 48),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                label,
-                style: TextStyle(
-                  fontSize: 11,
-                  color: Colors.grey[500],
-                  fontWeight: FontWeight.w600,
-                ),
+              Semantics(
+                header: true,
+                child: Text(s.title,
+                    style: const TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w700,
+                        color: tfInk,
+                        letterSpacing: -0.6)),
               ),
-              Text(
-                value,
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  color: valueColor ?? Colors.grey[800],
+              const SizedBox(height: 14),
+              SelectionArea(
+                child: MarkdownBody(
+                  data: s.markdown,
+                  onTapLink: (text, href, title) => _openLink(href),
+                  styleSheet:
+                      MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
+                    p: const TextStyle(fontSize: 16, color: tfInk, height: 1.7),
+                    listBullet:
+                        const TextStyle(fontSize: 16, color: tfInk, height: 1.7),
+                    h2: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color: tfInk),
+                    h3: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                        color: tfInk),
+                    a: const TextStyle(
+                        color: tfAccent, decoration: TextDecoration.underline),
+                  ),
                 ),
               ),
             ],
           ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildNotFound() {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.search_off, size: 48, color: Colors.grey),
-            const SizedBox(height: 16),
-            const Text('Opportunity not found'),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => Get.back(),
-              child: const Text('Go back'),
-            ),
-          ],
         ),
       ),
     );
