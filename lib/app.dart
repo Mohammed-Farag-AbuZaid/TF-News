@@ -34,7 +34,7 @@ class _AppState extends State<App> {
       final user = AuthenticationRepository.instance.authUser;
       final route = Get.currentRoute;
       final onDeepLink = route.isNotEmpty && route != '/';
-      if (onDeepLink && user != null && user.emailVerified) return;
+      if (onDeepLink && user != null) return;
       AuthenticationRepository.instance.screenRedirect();
     });
   }

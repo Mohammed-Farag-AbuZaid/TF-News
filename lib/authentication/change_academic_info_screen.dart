@@ -37,7 +37,7 @@ class ChangeAcademicInfo extends StatelessWidget {
             icon: Icons.open_in_new,
             expand: true,
             onPressed: () => launchUrl(
-              Uri.parse('https://tfunions.vercel.app/'),
+              Uri.parse('https://auth.tfunions.com/'),
               mode: LaunchMode.externalApplication,
             ),
           ),

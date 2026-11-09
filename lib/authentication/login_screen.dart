@@ -118,7 +118,8 @@ class LoginForm extends StatelessWidget {
             child: TfTextAction(
               label: 'Create a TF account',
               onPressed: () async {
-                final url = Uri.parse('https://tfunions.vercel.app/');
+                final url = Uri.parse(
+                    'https://auth.tfunions.com/?mode=register&redirect_to=https://news.tfunions.com');
                 if (await canLaunchUrl(url)) {
                   await launchUrl(url, mode: LaunchMode.externalApplication);
                 } else {

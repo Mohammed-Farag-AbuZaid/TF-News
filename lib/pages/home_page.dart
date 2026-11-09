@@ -1,4 +1,4 @@
-// lib/pages/home_page.dart
+﻿// lib/pages/home_page.dart
 // Home: quiet, typographic layout. One accent colour (the TF navy), no shadows,
 // no per-section colours. Four equal section tiles, then two plain lists.
 // One Firestore read feeds counts, search, closing-soon and must-know.
@@ -31,17 +31,8 @@ class _Feed {
 }
 
 Future<_Feed> _loadFeed() async {
-  final snap =
-      await FirebaseFirestore.instance.collection('opportunities').get();
+  final all = await OpportunityRepository().fetchAllOpportunities(forceRefresh: true);
   final now = DateTime.now();
-  final all = <Opportunity>[];
-  for (final doc in snap.docs) {
-    try {
-      all.add(Opportunity.fromFirestore(doc));
-    } catch (e) {
-      debugPrint('Skipping bad opportunity ${doc.id}: $e');
-    }
-  }
   final open = all.where((o) => o.isOpenAt(now)).toList();
   final counts = <String, int>{};
   for (final o in open) {

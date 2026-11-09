@@ -2,8 +2,12 @@
 // Contains: OpportunityStatus, Opportunity (model), OpportunityListX,
 // OpportunitySection (config), OpportunityRepository
 
+import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
+const String kTfApiBaseUrl = 'https://n8n.tfunions.com/tf-api';
 
 // ---------------------------------------------------------------------------
 // Model
@@ -72,7 +76,7 @@ class Opportunity {
     final start = startDate;
     final end = _deadlineEnd;
     if (isOpenAt(now)) return false;
-    if (start != null && start.isAfter(now)) return false; // announced
+    if (start != null && start.isAfter(now)) return false;
     return end != null && end.isBefore(now);
   }
 
@@ -86,32 +90,46 @@ class Opportunity {
     return d;
   }
 
-  factory Opportunity.fromFirestore(DocumentSnapshot doc) {
-    final data = (doc.data() as Map<String, dynamic>?) ?? {};
+  factory Opportunity.fromJson(Map<String, dynamic> data, {String? docId}) {
     return Opportunity(
-      id: doc.id,
-      section: data['section'] ?? '',
-      title: data['title'] ?? '',
-      shortDescription: data['shortDescription'] ?? '',
-      aboutMarkdown: data['aboutMarkdown'] ?? '',
-      requirementsMarkdown: data['requirementsMarkdown'] ?? '',
-      benefitsMarkdown: data['benefitsMarkdown'] ?? '',
-      guidelinesMarkdown: data['guidelinesMarkdown'] ?? '',
+      id: (docId ?? data['id'] ?? '').toString(),
+      section: (data['section'] ?? '').toString(),
+      title: (data['title'] ?? '').toString(),
+      shortDescription: (data['shortDescription'] ?? '').toString(),
+      aboutMarkdown: (data['aboutMarkdown'] ?? '').toString(),
+      requirementsMarkdown: (data['requirementsMarkdown'] ?? '').toString(),
+      benefitsMarkdown: (data['benefitsMarkdown'] ?? '').toString(),
+      guidelinesMarkdown: (data['guidelinesMarkdown'] ?? '').toString(),
       startDate: _toDate(data['startDate']),
       deadline: _toDate(data['deadline']),
-      category: data['category'] ?? '',
-      topic: data['topic'] ?? '',
-      link: data['link'] ?? '',
+      category: (data['category'] ?? '').toString(),
+      topic: (data['topic'] ?? '').toString(),
+      link: (data['link'] ?? '').toString(),
       ratingCount: (data['ratingCount'] as num?)?.toInt() ?? 0,
       mustKnow: data['mustKnow'] as bool? ?? false,
       voters: List<String>.from(data['voters'] ?? []),
     );
   }
+
+  factory Opportunity.fromFirestore(DocumentSnapshot doc) {
+    final data = (doc.data() as Map<String, dynamic>?) ?? {};
+    return Opportunity.fromJson(data, docId: doc.id);
+  }
 }
 
 DateTime? _toDate(dynamic value) {
+  if (value == null) return null;
   if (value is Timestamp) return value.toDate();
   if (value is DateTime) return value;
+  if (value is String && value.isNotEmpty) {
+    return DateTime.tryParse(value);
+  }
+  if (value is Map) {
+    final sec = value['_seconds'] ?? value['seconds'];
+    if (sec is num) {
+      return DateTime.fromMillisecondsSinceEpoch((sec * 1000).toInt());
+    }
+  }
   return null;
 }
 
@@ -244,33 +262,43 @@ class OpportunitySection {
 }
 
 // ---------------------------------------------------------------------------
-// Repository
+// Repository (VPS API primary, Firestore fallback)
 // ---------------------------------------------------------------------------
 
 class OpportunityRepository {
-  final CollectionReference _opportunitiesRef =
-      FirebaseFirestore.instance.collection('opportunities');
+  static List<Opportunity>? _cachedAll;
 
-  Future<List<Opportunity>> getOpportunities({
-    required String section,
-    String? category,
-    String? topic,
-    bool? mustKnow,
-  }) async {
-    Query query = _opportunitiesRef.where('section', isEqualTo: section);
-
-    if (mustKnow == true) {
-      query = query.where('mustKnow', isEqualTo: true);
-    } else if (category != null && category.isNotEmpty) {
-      query = query.where('category', isEqualTo: category);
+  Future<List<Opportunity>> fetchAllOpportunities({bool forceRefresh = false}) async {
+    if (!forceRefresh && _cachedAll != null && _cachedAll!.isNotEmpty) {
+      return _cachedAll!;
+    }
+    try {
+      final res = await http
+          .get(Uri.parse('$kTfApiBaseUrl/api/collections/opportunities'))
+          .timeout(const Duration(seconds: 8));
+      if (res.statusCode == 200) {
+        final body = jsonDecode(res.body) as Map<String, dynamic>;
+        final items = (body['items'] as List<dynamic>? ?? []);
+        final parsed = <Opportunity>[];
+        for (final item in items) {
+          if (item is Map<String, dynamic>) {
+            try {
+              parsed.add(Opportunity.fromJson(item));
+            } catch (_) {}
+          }
+        }
+        if (parsed.isNotEmpty) {
+          _cachedAll = parsed;
+          return parsed;
+        }
+      }
+    } catch (e) {
+      debugPrint('VPS API fetch failed, falling back: $e');
     }
 
-    if (topic != null && topic.isNotEmpty) {
-      query = query.where('topic', isEqualTo: topic);
-    }
-
-    final snapshot = await query.get();
-
+    // Fallback to Firestore if VPS API is unreachable
+    final snapshot =
+        await FirebaseFirestore.instance.collection('opportunities').get();
     final result = <Opportunity>[];
     for (final doc in snapshot.docs) {
       try {
@@ -279,29 +307,59 @@ class OpportunityRepository {
         debugPrint('Skipping bad opportunity ${doc.id}: $e');
       }
     }
+    _cachedAll = result;
     return result;
   }
 
+  Future<List<Opportunity>> getOpportunities({
+    required String section,
+    String? category,
+    String? topic,
+    bool? mustKnow,
+  }) async {
+    final all = await fetchAllOpportunities();
+    return all.where((o) {
+      if (o.section != section) return false;
+      if (mustKnow == true && !o.mustKnow) return false;
+      if (mustKnow != true &&
+          category != null &&
+          category.isNotEmpty &&
+          o.category != category) {
+        return false;
+      }
+      if (topic != null && topic.isNotEmpty && o.topic != topic) return false;
+      return true;
+    }).toList();
+  }
+
   Future<Opportunity?> getOpportunityById(String id) async {
-    final doc = await _opportunitiesRef.doc(id).get();
-    if (!doc.exists) return null;
-    return Opportunity.fromFirestore(doc);
+    try {
+      final res = await http
+          .get(Uri.parse('$kTfApiBaseUrl/api/collections/opportunities/$id'))
+          .timeout(const Duration(seconds: 6));
+      if (res.statusCode == 200) {
+        final body = jsonDecode(res.body) as Map<String, dynamic>;
+        final data = (body['data'] as Map<String, dynamic>?) ?? body;
+        return Opportunity.fromJson(data, docId: id);
+      }
+    } catch (_) {}
+
+    final all = await fetchAllOpportunities();
+    for (final o in all) {
+      if (o.id == id) return o;
+    }
+    return null;
   }
 
   /// Count of currently open opportunities, per section id.
   Future<Map<String, int>> getOpenCounts() async {
-    final snapshot = await _opportunitiesRef.get();
+    final all = await fetchAllOpportunities();
     final now = DateTime.now();
     final counts = <String, int>{};
 
-    for (final doc in snapshot.docs) {
-      try {
-        final o = Opportunity.fromFirestore(doc);
-        if (o.isOpenAt(now)) {
-          counts[o.section] = (counts[o.section] ?? 0) + 1;
-        }
-      } catch (e) {
-        debugPrint('Skipping bad opportunity ${doc.id}: $e');
+    for (final o in all) {
+      if (o.isOpenAt(now)) {
+        counts[o.section] = (counts[o.section] ?? 0) + 1;
       }
     }
     return counts;
