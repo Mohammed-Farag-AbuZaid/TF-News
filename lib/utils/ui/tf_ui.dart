@@ -15,17 +15,21 @@ import 'package:tf_news/utils/constants/colors.dart';
 
 class TfPalette {
   TfPalette._();
-  static const Color bg = Color(0xFFF8F9FB);
+  static const Color bg = Color(0xFFECEAE4);
   static const Color surface = Color(0xFFFFFFFF);
-  static const Color border = Color(0xFFE2E5EC);
-  static const Color accent = Color(0xFF002583);
-  static const Color gold = Color(0xFFD99B00);
+  static const Color surfaceAlt = Color(0xFFE2DFD7);
+  static const Color border = Color(0xFFCFCBC2);
+  static const Color navy = Color(0xFF0A1931);
+  static const Color navyAlt = Color(0xFF102447);
+  static const Color navyLine = Color(0xFF1E3A6D);
+  static const Color accent = Color(0xFF14388C);
+  static const Color gold = Color(0xFFC88A14);
 }
 
-const Color kInk = Color(0xFF11141C); // main text
-const Color kMuted = Color(0xFF525866); // secondary text
-const Color kBorder = Color(0xFFE2E5EC);
-const Color kSurface = Color(0xFFF8F9FB);
+const Color kInk = Color(0xFF12161F); // main text
+const Color kMuted = Color(0xFF4A5262); // secondary text
+const Color kBorder = Color(0xFFCFCBC2);
+const Color kSurface = Color(0xFFECEAE4);
 const Color kGood = Color(0xFF15803D); // green: open / full coverage
 const Color kWarn = Color(0xFFB45309); // amber: closing soon / partial
 const Color kBad = Color(0xFFB91C1C); // red: urgent / must-know

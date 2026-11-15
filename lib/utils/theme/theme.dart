@@ -44,7 +44,7 @@ class TAppTheme {
     colorScheme: const ColorScheme.dark(
       primary: TColors.primary,
       secondary: TColors.secondry,
-      surface: Color(0xFF111827),
+      surface: Color(0xFF102447),
     ),
     textTheme: TTextTheme.darkTextTheme,
     chipTheme: TChipTheme.darkChipTheme,
