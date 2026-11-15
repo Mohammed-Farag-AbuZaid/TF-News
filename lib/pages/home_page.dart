@@ -88,7 +88,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final TextEditingController _searchCtrl = TextEditingController();
   String _query = '';
-  String _bulletinTab = 'All Open';
 
   @override
   void initState() {
@@ -136,17 +135,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }).toList();
   }
 
-  List<Opportunity> _activeBulletins() {
-    switch (_bulletinTab) {
-      case 'Closing Soon':
-        return _feed.closing;
-      case 'Must-Know':
-        return _feed.mustKnow;
-      default:
-        return _feed.allOpen;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final matches = _matches();
@@ -163,26 +151,21 @@ class _HomeScreenState extends State<HomeScreen> {
                 SliverToBoxAdapter(
                   child: _heroStage(pad, small, wide),
                 ),
-
-                // ── Warm Architectural Stone Content Canvas ─────────────────
                 SliverToBoxAdapter(
                   child: Center(
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 1080),
                       child: Padding(
-                        padding: EdgeInsets.fromLTRB(pad, small ? 24 : 36, pad, 64),
+                        padding: EdgeInsets.fromLTRB(pad, small ? 16 : 24, pad, 56),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            if (_error != null && _query.trim().isNotEmpty)
+                              _ErrorBanner(onRetry: _retry),
                             if (_query.trim().isNotEmpty)
                               _searchResultsPanel(matches)
-                            else ...[
-                              _admissionsShowcase(small, wide),
-                              const SizedBox(height: 24),
-                              _divisionRow(small, wide),
-                              const SizedBox(height: 32),
-                              _bulletinsPanel(small, wide),
-                            ],
+                            else
+                              _launchpadGrid(small, wide),
                           ],
                         ),
                       ),
@@ -424,9 +407,9 @@ class _HomeScreenState extends State<HomeScreen> {
           runSpacing: 6,
           children: [
             _navChip('Admissions', '/study'),
+            _navChip('Directories', '/directories'),
+            _navChip('Bulletins', '/bulletins'),
             _navChip('Universities', '/study/universities'),
-            _navChip('Programs', '/study/programs'),
-            _navChip('Activities', '/activities'),
           ],
         ),
         SizedBox(height: small ? 14 : 18),
@@ -565,7 +548,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 value: _loading ? '—' : '${_feed.allOpen.length}',
                 label: 'Open listings',
                 highlight: true,
-                onTap: () => Get.toNamed('/activities'),
+                onTap: () => Get.toNamed('/bulletins'),
               ),
             ),
             const SizedBox(width: 12),
@@ -574,7 +557,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 code: '02 — Urgent',
                 value: _loading ? '—' : '${_feed.closing.length}',
                 label: 'Closing soon',
-                onTap: () => setState(() => _bulletinTab = 'Closing Soon'),
+                onTap: () => Get.toNamed('/bulletins?tab=closing'),
               ),
             ),
           ],
@@ -593,10 +576,10 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: _TelemetryCard(
-                code: '04 — Directory',
-                value: 'Programs',
-                label: 'Browse by field',
-                onTap: () => Get.toNamed('/study/programs'),
+                code: '04 — Directories',
+                value: '4 tracks',
+                label: 'Browse divisions',
+                onTap: () => Get.toNamed('/directories'),
               ),
             ),
           ],
@@ -631,7 +614,312 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ── Featured Admissions Showcase ───────────────────────────────────────────
+  // ── Clean 4-Destination Launchpad Grid ───────────────────────────────────
+
+  Widget _launchpadGrid(bool small, bool wide) {
+    final destinations = [
+      _LaunchCardData(
+        code: '01 · Admissions',
+        title: 'University Admissions Guide',
+        subtitle: 'Compare 1,500+ verified international pathways, scholarships, and financial aid criteria.',
+        cta: 'Open admissions guide',
+        route: '/study',
+      ),
+      _LaunchCardData(
+        code: '02 · Directories',
+        title: 'Opportunity Directories',
+        subtitle: 'Browse Extracurricular Activities, Internships, and Pre-College Research Programs.',
+        cta: 'View directories',
+        route: '/directories',
+      ),
+      _LaunchCardData(
+        code: '03 · Real-Time Feed',
+        title: 'Live Bulletins & Deadlines',
+        subtitle: _loading
+            ? 'Inspect All Open, Closing Soon, and Essential student deadlines.'
+            : '${_feed.allOpen.length} open listings · ${_feed.closing.length} closing soon.',
+        cta: 'Open bulletins ledger',
+        route: '/bulletins',
+      ),
+      _LaunchCardData(
+        code: '04 · Majors & Campuses',
+        title: 'Universities & Fields Finder',
+        subtitle: 'Jump straight to searchable universities or filter opportunities by academic field.',
+        cta: 'Browse universities',
+        route: '/study/universities',
+      ),
+    ];
+
+    if (wide) {
+      return Column(
+        children: [
+          Row(
+            children: [
+              Expanded(child: _LaunchpadCard(data: destinations[0])),
+              const SizedBox(width: 16),
+              Expanded(child: _LaunchpadCard(data: destinations[1])),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(child: _LaunchpadCard(data: destinations[2])),
+              const SizedBox(width: 16),
+              Expanded(child: _LaunchpadCard(data: destinations[3])),
+            ],
+          ),
+        ],
+      );
+    }
+
+    return Column(
+      children: [
+        for (var i = 0; i < destinations.length; i++) ...[
+          if (i > 0) const SizedBox(height: 12),
+          _LaunchpadCard(data: destinations[i]),
+        ],
+      ],
+    );
+  }
+
+  // ── Search Results Ledger ──────────────────────────────────────────────────
+
+  Widget _searchResultsPanel(List<Opportunity> matches) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: tfPaper,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: tfHair),
+        boxShadow: const [
+          BoxShadow(color: Color(0x0A161A22), blurRadius: 4, offset: Offset(0, 1)),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(22, 16, 22, 14),
+            child: Row(
+              children: [
+                Text(
+                  'Search results (${matches.length})',
+                  style: const TextStyle(
+                    fontFamily: 'Bricolage Grotesque',
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    color: tfInk,
+                  ),
+                ),
+                const Spacer(),
+                TfTextAction(
+                  label: 'Clear filter',
+                  icon: Icons.close_rounded,
+                  onPressed: () {
+                    _searchCtrl.clear();
+                    setState(() => _query = '');
+                  },
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1, thickness: 1, color: tfHair),
+          if (matches.isEmpty)
+            const _Empty('No matching scholarships, admissions, or programs found.')
+          else
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 22),
+              child: Column(
+                children: [for (final o in matches) _Row(o: o)],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LaunchCardData {
+  final String code;
+  final String title;
+  final String subtitle;
+  final String cta;
+  final String route;
+  const _LaunchCardData({
+    required this.code,
+    required this.title,
+    required this.subtitle,
+    required this.cta,
+    required this.route,
+  });
+}
+
+class _LaunchpadCard extends StatefulWidget {
+  final _LaunchCardData data;
+  const _LaunchpadCard({required this.data});
+
+  @override
+  State<_LaunchpadCard> createState() => _LaunchpadCardState();
+}
+
+class _LaunchpadCardState extends State<_LaunchpadCard> {
+  bool _hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final d = widget.data;
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _hover = true),
+      onExit: (_) => setState(() => _hover = false),
+      child: GestureDetector(
+        onTap: () => Get.toNamed(d.route),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 140),
+          padding: const EdgeInsets.all(22),
+          decoration: BoxDecoration(
+            color: tfPaper,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: _hover ? tfAccent : tfHair,
+              width: _hover ? 1.5 : 1,
+            ),
+            boxShadow: const [
+              BoxShadow(color: Color(0x0A161A22), blurRadius: 4, offset: Offset(0, 1)),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                d.code,
+                style: const TextStyle(
+                  fontFamily: 'JetBrains Mono',
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: tfGood,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                d.title,
+                style: const TextStyle(
+                  fontFamily: 'Bricolage Grotesque',
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: tfInk,
+                  letterSpacing: -0.35,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                d.subtitle,
+                style: const TextStyle(fontSize: 13.5, color: tfMuted, height: 1.55),
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Text(
+                    d.cta,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: tfAccent,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  const Icon(Icons.arrow_forward_rounded, size: 15, color: tfAccent),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ErrorBanner extends StatelessWidget {
+  final VoidCallback onRetry;
+  const _ErrorBanner({required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: tfTile,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: tfHair),
+      ),
+      child: Row(
+        children: [
+          const Expanded(
+            child: Text(
+              'Live feed could not refresh. Showing cached results if available.',
+              style: TextStyle(fontSize: 13.5, color: tfInk),
+            ),
+          ),
+          const SizedBox(width: 12),
+          TfTextAction(label: 'Retry', onPressed: onRetry),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Dedicated Page: Opportunity Directories (/directories)
+// ---------------------------------------------------------------------------
+
+class DirectoriesPage extends StatefulWidget {
+  const DirectoriesPage({super.key});
+
+  @override
+  State<DirectoriesPage> createState() => _DirectoriesPageState();
+}
+
+class _DirectoriesPageState extends State<DirectoriesPage> {
+  _Feed _feed = const _Feed();
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFeed().then((feed) {
+      if (!mounted) return;
+      setState(() {
+        _feed = feed;
+        _loading = false;
+      });
+    }).catchError((_) {
+      if (!mounted) return;
+      setState(() => _loading = false);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TfPage(
+      backLabel: 'Home',
+      slivers: (context, l) => [
+        l.gap(16),
+        l.box(
+          TfTitle(
+            title: 'Opportunity directories',
+            subtitle: 'Browse admissions guides, extracurricular activities, internships, and research programs.',
+            small: l.small,
+          ),
+        ),
+        l.gap(20),
+        l.box(_admissionsShowcase(l.small, l.wide)),
+        l.gap(20),
+        l.box(_divisionRow(l.small, l.wide)),
+      ],
+    );
+  }
 
   Widget _admissionsShowcase(bool small, bool wide) {
     final s = OpportunitySection.study;
@@ -798,8 +1086,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // ── Three Secondary Divisions Row ──────────────────────────────────────────
-
   Widget _divisionRow(bool small, bool wide) {
     final others = [
       OpportunitySection.activities,
@@ -840,168 +1126,176 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
     );
   }
+}
 
-  // ── Search Results Ledger ──────────────────────────────────────────────────
+// ---------------------------------------------------------------------------
+// Dedicated Page: Live Bulletins & Deadlines (/bulletins)
+// ---------------------------------------------------------------------------
 
-  Widget _searchResultsPanel(List<Opportunity> matches) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: tfPaper,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: tfHair),
-        boxShadow: const [
-          BoxShadow(color: Color(0x0A161A22), blurRadius: 4, offset: Offset(0, 1)),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(22, 16, 22, 14),
-            child: Row(
-              children: [
-                Text(
-                  'Search results (${matches.length})',
-                  style: const TextStyle(
-                    fontFamily: 'Bricolage Grotesque',
-                    fontSize: 17,
-                    fontWeight: FontWeight.w700,
-                    color: tfInk,
-                  ),
-                ),
-                const Spacer(),
-                TfTextAction(
-                  label: 'Clear filter',
-                  icon: Icons.close_rounded,
-                  onPressed: () {
-                    _searchCtrl.clear();
-                    setState(() => _query = '');
-                  },
-                ),
-              ],
-            ),
-          ),
-          const Divider(height: 1, thickness: 1, color: tfHair),
-          if (matches.isEmpty)
-            const _Empty('No matching scholarships, admissions, or programs found.')
-          else
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 22),
-              child: Column(
-                children: [for (final o in matches) _Row(o: o)],
-              ),
-            ),
-        ],
-      ),
-    );
+class BulletinsPage extends StatefulWidget {
+  const BulletinsPage({super.key});
+
+  @override
+  State<BulletinsPage> createState() => _BulletinsPageState();
+}
+
+class _BulletinsPageState extends State<BulletinsPage> {
+  Future<_Feed>? _future;
+  _Feed _feed = const _Feed();
+  bool _loading = true;
+  Object? _error;
+  String _bulletinTab = 'All Open';
+
+  @override
+  void initState() {
+    super.initState();
+    final tabParam = Get.parameters['tab'];
+    if (tabParam == 'closing') {
+      _bulletinTab = 'Closing Soon';
+    } else if (tabParam == 'essential') {
+      _bulletinTab = 'Must-Know';
+    }
+    _retry();
   }
 
-  // ── Interactive Bulletins Ledger ───────────────────────────────────────────
+  void _retry() {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    final f = _loadFeed();
+    _future = f;
+    f.then((feed) {
+      if (!mounted || _future != f) return;
+      setState(() {
+        _feed = feed;
+        _loading = false;
+      });
+    }).catchError((Object e) {
+      if (!mounted || _future != f) return;
+      setState(() {
+        _error = e;
+        _loading = false;
+      });
+    });
+  }
 
-  Widget _bulletinsPanel(bool small, bool wide) {
+  List<Opportunity> _activeBulletins() {
+    switch (_bulletinTab) {
+      case 'Closing Soon':
+        return _feed.closing;
+      case 'Must-Know':
+        return _feed.mustKnow;
+      default:
+        return _feed.allOpen;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final rows = _activeBulletins();
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: tfPaper,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: tfHair),
-        boxShadow: const [
-          BoxShadow(color: Color(0x0A161A22), blurRadius: 4, offset: Offset(0, 1)),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: EdgeInsets.fromLTRB(
-              small ? 18 : 24,
-              small ? 18 : 22,
-              small ? 18 : 24,
-              18,
+    return TfPage(
+      backLabel: 'Home',
+      slivers: (context, l) => [
+        l.gap(16),
+        l.box(
+          TfTitle(
+            title: 'Live bulletins & deadlines',
+            subtitle: 'Click any entry for requirements, benefits, and verified application links.',
+            small: l.small,
+          ),
+        ),
+        l.gap(20),
+        l.box(
+          Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              color: tfPaper,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: tfHair),
+              boxShadow: const [
+                BoxShadow(color: Color(0x0A161A22), blurRadius: 4, offset: Offset(0, 1)),
+              ],
             ),
-            child: Wrap(
-              spacing: 14,
-              runSpacing: 12,
-              alignment: WrapAlignment.spaceBetween,
-              crossAxisAlignment: WrapCrossAlignment.center,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
-                      'Live bulletins & deadlines ledger',
-                      style: TextStyle(
-                        fontFamily: 'Bricolage Grotesque',
-                        fontSize: 21,
-                        fontWeight: FontWeight.w700,
-                        color: tfInk,
-                        letterSpacing: -0.4,
+                Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    l.small ? 18 : 24,
+                    l.small ? 16 : 20,
+                    l.small ? 18 : 24,
+                    16,
+                  ),
+                  child: Wrap(
+                    spacing: 14,
+                    runSpacing: 12,
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      TfSegmented(
+                        items: const ['All Open', 'Closing Soon', 'Must-Know'],
+                        selected: _bulletinTab,
+                        onSelected: (v) => setState(() => _bulletinTab = v),
+                      ),
+                      TfTextAction(
+                        label: 'Refresh',
+                        icon: Icons.refresh_rounded,
+                        onPressed: _retry,
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(height: 1, thickness: 1, color: tfHair),
+                if (_error != null && !_loading)
+                  Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: tfTile,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: tfHair),
+                      ),
+                      child: Row(
+                        children: [
+                          const Expanded(
+                            child: Text(
+                              'Live deadlines could not load. Check your connection.',
+                              style: TextStyle(fontSize: 13.5, color: tfInk),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          TfTextAction(label: 'Retry', onPressed: _retry),
+                        ],
                       ),
                     ),
-                    SizedBox(height: 3),
-                    Text(
-                      'Click any entry for requirements, benefits, and verified application links.',
-                      style: TextStyle(fontSize: 13.5, color: tfMuted),
+                  )
+                else if (_loading)
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: l.small ? 18 : 24),
+                    child: Column(
+                      children: [for (var i = 0; i < 4; i++) const _RowSkeleton()],
                     ),
-                  ],
-                ),
-                TfSegmented(
-                  items: const ['All Open', 'Closing Soon', 'Must-Know'],
-                  selected: _bulletinTab,
-                  onSelected: (v) => setState(() => _bulletinTab = v),
-                ),
+                  )
+                else if (rows.isEmpty)
+                  const _Empty('No active entries match this filter right now.')
+                else
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: l.small ? 18 : 24),
+                    child: Column(
+                      children: [
+                        for (var i = 0; i < rows.length; i++)
+                          _Row(o: rows[i], isLast: i == rows.length - 1),
+                      ],
+                    ),
+                  ),
               ],
             ),
           ),
-          const Divider(height: 1, thickness: 1, color: tfHair),
-          if (_error != null && !_loading)
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: tfTile,
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: tfHair),
-                ),
-                child: Row(
-                  children: [
-                    const Expanded(
-                      child: Text(
-                        'Live deadlines could not load. Check your connection.',
-                        style: TextStyle(fontSize: 13.5, color: tfInk),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    TfTextAction(label: 'Retry', onPressed: _retry),
-                  ],
-                ),
-              ),
-            )
-          else if (_loading)
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: small ? 18 : 24),
-              child: Column(
-                children: [for (var i = 0; i < 4; i++) const _RowSkeleton()],
-              ),
-            )
-          else if (rows.isEmpty)
-            const _Empty('No active entries match this filter right now.')
-          else
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: small ? 18 : 24),
-              child: Column(
-                children: [
-                  for (var i = 0; i < rows.length; i++)
-                    _Row(o: rows[i], isLast: i == rows.length - 1),
-                ],
-              ),
-            ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

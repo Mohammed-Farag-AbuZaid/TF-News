@@ -101,8 +101,13 @@ class _AppState extends State<App> {
           page: () => const WayPage(),
         ),
         // Admissions: choose -> browse (universities | programs) -> detail
-        GetPage(name: '/study/universities', page: () => const UniversitiesPage()),
+        GetPage(
+          name: '/study/universities',
+          page: () => const UniversitiesPage(),
+        ),
         GetPage(name: '/study/programs', page: () => const ProgramsPage()),
+        GetPage(name: '/directories', page: () => const DirectoriesPage()),
+        GetPage(name: '/bulletins', page: () => const BulletinsPage()),
         GetPage(name: '/admissions/program/:key', page: () => const ProgramPage()),
         // The 4 home cards. Only the "study" section (Scholarships & Admissions)
         // opens the new Admissions pages; the other three are unchanged.
