@@ -2,6 +2,9 @@
 // Home — TF Oxford & Stone editorial observatory for TF News (news.tfunions.com).
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:tf_news/authentication/authentication_repository.dart';
+import 'package:tf_news/authentication/login_controller.dart';
+import 'package:tf_news/authentication/login_screen.dart';
 import 'package:tf_news/authentication/user_controller.dart';
 import 'package:tf_news/data/opportunity.dart';
 import 'package:tf_news/pages/widgets.dart';
@@ -152,24 +155,11 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, c) {
-            final pad = tfSidePadding(c.maxWidth) + (c.maxWidth < 700 ? 0 : 8);
             final small = c.maxWidth < TfBreakpoints.mobile;
+            final pad = small ? 16.0 : tfSidePadding(c.maxWidth) + 8;
             final wide = c.maxWidth >= 880;
             return CustomScrollView(
               slivers: [
-                // ── Top Masthead + Open Hero on Calm Alabaster Canvas ──────
-                SliverToBoxAdapter(
-                  child: Container(
-                    width: double.infinity,
-                    decoration: const BoxDecoration(
-                      color: tfPaper,
-                      border: Border(
-                        bottom: BorderSide(color: tfHair, width: 1),
-                      ),
-                    ),
-                    child: _mastheadBar(pad, small),
-                  ),
-                ),
                 SliverToBoxAdapter(
                   child: _heroStage(pad, small, wide),
                 ),
@@ -209,140 +199,192 @@ class _HomeScreenState extends State<HomeScreen> {
 
   // ── Full-width Masthead ────────────────────────────────────────────────────
 
-  Widget _mastheadBar(double pad, bool small) {
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 1080),
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: pad, vertical: 14),
-          child: Row(
-            children: [
-              // Brand crest
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 30,
-                    height: 30,
-                    alignment: Alignment.center,
+  // ── Compact Inline Account & Brand Controls (No heavy top bar) ────────────
+
+  void _openAuth(bool register) {
+    final c = Get.isRegistered<LoginController>()
+        ? Get.find<LoginController>()
+        : Get.put(LoginController());
+    c.isRegisterMode.value = register;
+    Get.to(() => const LoginScreen());
+  }
+
+  Widget _heroIdentityBar(bool small) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(
+          width: 28,
+          height: 28,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: tfNavy,
+            borderRadius: BorderRadius.circular(7),
+          ),
+          child: const Text(
+            'TF',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 11,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.3,
+            ),
+          ),
+        ),
+        const SizedBox(width: 9),
+        const Text(
+          'TF News',
+          style: TextStyle(
+            fontFamily: 'Bricolage Grotesque',
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+            color: tfInk,
+            letterSpacing: -0.3,
+          ),
+        ),
+        const Spacer(),
+        Obx(() {
+          final u = UserController.instance.user.value;
+          final fbUser = AuthenticationRepository.instance.authUser;
+          final rawName = u.firstName.trim().isNotEmpty
+              ? u.firstName.trim()
+              : (fbUser?.displayName?.trim().split(' ').first ??
+                  fbUser?.email?.split('@').first ??
+                  '');
+          if (rawName.isEmpty) {
+            return Wrap(
+              spacing: 8,
+              runSpacing: 6,
+              alignment: WrapAlignment.end,
+              children: [
+                InkWell(
+                  onTap: () => _openAuth(false),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: small ? 10 : 12,
+                      vertical: 7,
+                    ),
+                    decoration: BoxDecoration(
+                      color: tfPaper,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: tfHair),
+                    ),
+                    child: const Text(
+                      'Sign in',
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        color: tfInk,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                InkWell(
+                  onTap: () => _openAuth(true),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: small ? 11 : 13,
+                      vertical: 7,
+                    ),
                     decoration: BoxDecoration(
                       color: tfNavy,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: Stack(
-                      clipBehavior: Clip.none,
-                      alignment: Alignment.center,
-                      children: [
-                        const Text(
-                          'TF',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 0.3,
-                          ),
-                        ),
-                        Positioned(
-                          top: -2,
-                          right: -2,
-                          child: Container(
-                            width: 7,
-                            height: 7,
-                            decoration: BoxDecoration(
-                              color: tfGood,
-                              shape: BoxShape.circle,
-                              border: Border.all(color: tfPaper, width: 1.4),
-                            ),
-                          ),
-                        ),
-                      ],
+                    child: const Text(
+                      'Create account',
+                      style: TextStyle(
+                        fontSize: 12.5,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
-                  const SizedBox(width: 10),
-                  const Text(
-                    'TF News',
-                    style: TextStyle(
-                      fontFamily: 'Bricolage Grotesque',
-                      fontSize: 17,
-                      fontWeight: FontWeight.w700,
-                      color: tfInk,
-                      letterSpacing: -0.3,
+                ),
+              ],
+            );
+          }
+
+          return PopupMenuButton<String>(
+            tooltip: 'Account options',
+            color: tfPaper,
+            surfaceTintColor: Colors.transparent,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+              side: const BorderSide(color: tfHair),
+            ),
+            onSelected: (value) async {
+              if (value == 'switch') {
+                _openAuth(false);
+              } else if (value == 'create') {
+                _openAuth(true);
+              } else if (value == 'signout') {
+                await AuthenticationRepository.instance.logout();
+              }
+            },
+            itemBuilder: (_) => const [
+              PopupMenuItem(
+                value: 'switch',
+                child: Text('Switch account'),
+              ),
+              PopupMenuItem(
+                value: 'create',
+                child: Text('Create new account'),
+              ),
+              PopupMenuDivider(),
+              PopupMenuItem(
+                value: 'signout',
+                child: Text(
+                  'Sign out',
+                  style: TextStyle(color: tfUrgent, fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: tfTealSoft,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: tfTealBorder),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 6,
+                    height: 6,
+                    decoration: const BoxDecoration(
+                      color: tfGood,
+                      shape: BoxShape.circle,
                     ),
+                  ),
+                  const SizedBox(width: 6),
+                  ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: small ? 120 : 180),
+                    child: Text(
+                      'Scholar · $rawName',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 12.5,
+                        color: tfGood,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 3),
+                  const Icon(
+                    Icons.expand_more_rounded,
+                    size: 16,
+                    color: tfGood,
                   ),
                 ],
               ),
-              if (!small) ...[
-                const SizedBox(width: 24),
-                _navChip('Admissions', '/study'),
-                const SizedBox(width: 4),
-                _navChip('Universities', '/study/universities'),
-                const SizedBox(width: 4),
-                _navChip('Programs', '/study/programs'),
-                const SizedBox(width: 4),
-                _navChip('Activities', '/activities'),
-              ],
-              const Spacer(),
-              Obx(() {
-                final name = UserController.instance.user.value.firstName.trim();
-                if (name.isEmpty) {
-                  return InkWell(
-                    onTap: () => Get.toNamed('/study'),
-                    borderRadius: BorderRadius.circular(8),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: tfNavy,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: const Text(
-                        'Explore index',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  );
-                }
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: tfTealSoft,
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: tfTealBorder),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 6,
-                        height: 6,
-                        decoration: const BoxDecoration(
-                          color: tfGood,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 7),
-                      Text(
-                        'Scholar · $name',
-                        style: const TextStyle(
-                          fontSize: 12.5,
-                          color: tfGood,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }),
-            ],
-          ),
-        ),
-      ),
+            ),
+          );
+        }),
+      ],
     );
   }
 
@@ -350,14 +392,19 @@ class _HomeScreenState extends State<HomeScreen> {
     return InkWell(
       onTap: () => Get.toNamed(route),
       borderRadius: BorderRadius.circular(8),
-      child: Padding(
+      child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: tfPaper,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: tfHair),
+        ),
         child: Text(
           label,
           style: const TextStyle(
-            fontSize: 13.5,
+            fontSize: 12.5,
             color: tfMuted,
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),
@@ -370,6 +417,19 @@ class _HomeScreenState extends State<HomeScreen> {
     final left = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        _heroIdentityBar(small),
+        SizedBox(height: small ? 16 : 22),
+        Wrap(
+          spacing: 6,
+          runSpacing: 6,
+          children: [
+            _navChip('Admissions', '/study'),
+            _navChip('Universities', '/study/universities'),
+            _navChip('Programs', '/study/programs'),
+            _navChip('Activities', '/activities'),
+          ],
+        ),
+        SizedBox(height: small ? 14 : 18),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
           decoration: BoxDecoration(
@@ -400,12 +460,12 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 14),
         Text(
           'Scholarships, university admissions, and verified pathways.',
           style: TextStyle(
             fontFamily: 'Bricolage Grotesque',
-            fontSize: small ? 30 : 42,
+            fontSize: small ? 27 : 40,
             fontWeight: FontWeight.w700,
             color: tfInk,
             letterSpacing: -1.1,
@@ -548,7 +608,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 1080),
         child: Padding(
-          padding: EdgeInsets.fromLTRB(pad, small ? 28 : 44, pad, small ? 24 : 32),
+          padding: EdgeInsets.fromLTRB(pad, small ? 18 : 34, pad, small ? 20 : 28),
           child: wide
               ? Row(
                   crossAxisAlignment: CrossAxisAlignment.center,

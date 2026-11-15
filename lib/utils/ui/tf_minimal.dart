@@ -107,41 +107,69 @@ class TfPage extends StatelessWidget {
         child: LayoutBuilder(
           builder: (context, c) {
             final l = _layoutFor(c.maxWidth);
-            return Column(
-              children: [
-                // Full-width crisp white masthead over Calm Alabaster canvas
-                Container(
-                  width: double.infinity,
-                  decoration: const BoxDecoration(
-                    color: tfPaper,
-                    border: Border(
-                      bottom: BorderSide(color: tfHair, width: 1),
-                    ),
-                  ),
-                  alignment: Alignment.center,
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: maxWidth),
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: l.pad),
-                      child: TfTopBar(backLabel: backLabel),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: maxWidth),
-                      child: CustomScrollView(
-                        controller: controller,
-                        slivers: [
-                          ...slivers(context, l),
-                          const SliverToBoxAdapter(child: SizedBox(height: 64)),
-                        ],
+            return Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: maxWidth),
+                child: CustomScrollView(
+                  controller: controller,
+                  slivers: [
+                    if (backLabel != null)
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(
+                            l.pad,
+                            l.small ? 14 : 20,
+                            l.pad,
+                            0,
+                          ),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: InkWell(
+                              onTap: () => tfGoBack(context),
+                              borderRadius: BorderRadius.circular(8),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 11,
+                                  vertical: 7,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: tfPaper,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(color: tfHair),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(
+                                      Icons.arrow_back_rounded,
+                                      size: 15,
+                                      color: tfInk,
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      backLabel!,
+                                      style: const TextStyle(
+                                        fontSize: 13.5,
+                                        color: tfInk,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                    else
+                      SliverToBoxAdapter(
+                        child: SizedBox(height: l.small ? 12 : 20),
                       ),
-                    ),
-                  ),
+                    ...slivers(context, l),
+                    const SliverToBoxAdapter(child: SizedBox(height: 64)),
+                  ],
                 ),
-              ],
+              ),
             );
           },
         ),
@@ -423,44 +451,47 @@ class TfSegmented extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: const Color(0xFFDCD9D0)),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (final item in items)
-            InkWell(
-              onTap: () => onSelected(item),
-              borderRadius: BorderRadius.circular(8),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 140),
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-                decoration: BoxDecoration(
-                  color: item == selected ? tfPaper : Colors.transparent,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: item == selected ? tfHair : Colors.transparent,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final item in items)
+              InkWell(
+                onTap: () => onSelected(item),
+                borderRadius: BorderRadius.circular(8),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 140),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                  decoration: BoxDecoration(
+                    color: item == selected ? tfPaper : Colors.transparent,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: item == selected ? tfHair : Colors.transparent,
+                    ),
+                    boxShadow: item == selected
+                        ? const [
+                            BoxShadow(
+                              color: Color(0x0A161A22),
+                              blurRadius: 3,
+                              offset: Offset(0, 1),
+                            ),
+                          ]
+                        : null,
                   ),
-                  boxShadow: item == selected
-                      ? const [
-                          BoxShadow(
-                            color: Color(0x0A161A22),
-                            blurRadius: 3,
-                            offset: Offset(0, 1),
-                          ),
-                        ]
-                      : null,
-                ),
-                child: Text(
-                  item,
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight:
-                        item == selected ? FontWeight.w700 : FontWeight.w500,
-                    color: item == selected ? tfInk : tfMuted,
+                  child: Text(
+                    item,
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight:
+                          item == selected ? FontWeight.w700 : FontWeight.w500,
+                      color: item == selected ? tfInk : tfMuted,
+                    ),
                   ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }

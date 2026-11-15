@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:tf_news/utils/constants/image_strings.dart';
 import 'package:tf_news/utils/ui/tf_minimal.dart';
 
-/// Calm Alabaster page with centred Crisp White sheet: brand or logo, title, message, content.
+/// Calm Alabaster page with centred Crisp White sheet (no top bar, mobile-first).
 class AuthFrame extends StatelessWidget {
   final String title;
   final String? subtitle;
@@ -24,16 +24,28 @@ class AuthFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    final compact = width < 540;
     return Scaffold(
       backgroundColor: tfCanvas,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 24, 20, 48),
+            padding: EdgeInsets.fromLTRB(
+              compact ? 14 : 20,
+              compact ? 14 : 24,
+              compact ? 14 : 20,
+              compact ? 28 : 44,
+            ),
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 460),
               child: Container(
-                padding: const EdgeInsets.fromLTRB(28, 28, 28, 32),
+                padding: EdgeInsets.fromLTRB(
+                  compact ? 20 : 28,
+                  compact ? 22 : 28,
+                  compact ? 20 : 28,
+                  compact ? 24 : 30,
+                ),
                 decoration: BoxDecoration(
                   color: tfPaper,
                   borderRadius: BorderRadius.circular(16),
@@ -50,7 +62,7 @@ class AuthFrame extends StatelessWidget {
                           style: TextButton.styleFrom(
                             foregroundColor: tfAccent,
                             padding: EdgeInsets.zero,
-                            minimumSize: const Size(0, 40),
+                            minimumSize: const Size(0, 36),
                           ),
                           icon: const Icon(Icons.chevron_left, size: 22),
                           label: const Text(
@@ -62,11 +74,11 @@ class AuthFrame extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 10),
                     ],
                     if (showLogo)
                       const Image(
-                        height: 48,
+                        height: 42,
                         alignment: Alignment.centerLeft,
                         image: AssetImage(TImages.tfLogo),
                       )
@@ -80,32 +92,33 @@ class AuthFrame extends StatelessWidget {
                           letterSpacing: -0.2,
                         ),
                       ),
-                    const SizedBox(height: 28),
+                    SizedBox(height: compact ? 18 : 24),
                     Semantics(
                       header: true,
                       child: Text(
                         title,
-                        style: const TextStyle(
+                        style: TextStyle(
+                          fontFamily: 'Bricolage Grotesque',
                           color: tfInk,
                           fontWeight: FontWeight.w700,
                           height: 1.1,
-                          letterSpacing: -0.9,
-                          fontSize: 30,
+                          letterSpacing: -0.8,
+                          fontSize: compact ? 25 : 30,
                         ),
                       ),
                     ),
                     if (subtitle != null && subtitle!.isNotEmpty) ...[
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 8),
                       Text(
                         subtitle!,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: tfMuted,
-                          fontSize: 15,
-                          height: 1.5,
+                          fontSize: compact ? 14 : 15,
+                          height: 1.45,
                         ),
                       ),
                     ],
-                    const SizedBox(height: 28),
+                    SizedBox(height: compact ? 20 : 24),
                     child,
                   ],
                 ),
@@ -126,7 +139,7 @@ InputDecoration authInput(String label, IconData icon, {Widget? suffix}) {
       );
   return InputDecoration(
     labelText: label,
-    labelStyle: const TextStyle(color: tfMuted, fontSize: 15),
+    labelStyle: const TextStyle(color: tfMuted, fontSize: 14.5),
     floatingLabelStyle: const TextStyle(color: tfAccent),
     prefixIcon: Icon(icon, size: 20),
     suffixIcon: suffix,
@@ -134,7 +147,7 @@ InputDecoration authInput(String label, IconData icon, {Widget? suffix}) {
     suffixIconColor: tfMuted,
     filled: true,
     fillColor: tfTile.withValues(alpha: 0.6),
-    contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 14),
+    contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 14),
     border: b(tfHair, 1),
     enabledBorder: b(tfHair, 1),
     focusedBorder: b(tfAccent, 1.5),
