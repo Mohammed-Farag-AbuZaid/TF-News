@@ -1,8 +1,6 @@
 ﻿// lib/pages/home_page.dart
-// Home: quiet, typographic layout. One accent colour (the TF navy), no shadows,
-// no per-section colours. Four equal section tiles, then two plain lists.
-// One Firestore read feeds counts, search, closing-soon and must-know.
-import 'package:cloud_firestore/cloud_firestore.dart';
+// Home: TF Sovereign Editorial layout. Royal Cobalt & Gold monogram identity,
+// elevated white widget cards on #F8F9FB canvas with crisp #E2E5EC borders.
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tf_news/authentication/user_controller.dart';
@@ -11,10 +9,10 @@ import 'package:tf_news/pages/widgets.dart';
 import 'package:tf_news/utils/constants/colors.dart';
 import 'package:tf_news/utils/ui/tf_ui.dart';
 
-const Color _ink = Color(0xFF1D1D1F);
-const Color _muted = Color(0xFF6E6E73);
-const Color _tile = Color(0xFFF5F5F7);
-const Color _hair = Color(0xFFD2D2D7);
+const Color _ink = Color(0xFF11141C);
+const Color _muted = Color(0xFF525866);
+const Color _tile = Color(0xFFFFFFFF);
+const Color _hair = Color(0xFFE2E5EC);
 const Color _accent = TColors.primary;
 
 class _Feed {
@@ -104,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: TfPalette.bg,
       body: SafeArea(
         child: FutureBuilder<_Feed>(
           future: _feed,
@@ -123,13 +121,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     padding: EdgeInsets.fromLTRB(pad, 0, pad, 72),
                     children: [
                       _topBar(),
-                      SizedBox(height: small ? 56 : 88),
+                      SizedBox(height: small ? 44 : 68),
                       _intro(small),
                       const SizedBox(height: 28),
                       _search(feed),
-                      SizedBox(height: small ? 56 : 80),
+                      SizedBox(height: small ? 40 : 56),
                       _sectionGrid(small, loading, feed),
-                      SizedBox(height: small ? 64 : 96),
+                      SizedBox(height: small ? 48 : 68),
                       if (failed)
                         _loadError()
                       else
@@ -152,10 +150,48 @@ class _HomeScreenState extends State<HomeScreen> {
       height: 64,
       alignment: Alignment.centerLeft,
       decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: _hair, width: 0.5)),
+        color: _tile,
+        border: Border(bottom: BorderSide(color: _hair, width: 1)),
       ),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
+          Container(
+            width: 26,
+            height: 26,
+            margin: const EdgeInsets.only(right: 10),
+            decoration: BoxDecoration(
+              color: _accent,
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Stack(
+              children: [
+                const Center(
+                  child: Text(
+                    'TF',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.4,
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 3.5,
+                  right: 3.5,
+                  child: Container(
+                    width: 4,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: TfPalette.gold,
+                      borderRadius: BorderRadius.circular(1),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
           const Text(
             'TF News',
             style: TextStyle(
@@ -169,8 +205,18 @@ class _HomeScreenState extends State<HomeScreen> {
           Obx(() {
             final name = UserController.instance.user.value.firstName.trim();
             if (name.isEmpty) return const SizedBox.shrink();
-            return Text(name,
-                style: const TextStyle(color: _muted, fontSize: 14));
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: TfPalette.bg,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: _hair),
+              ),
+              child: Text(
+                name,
+                style: const TextStyle(color: _ink, fontSize: 13, fontWeight: FontWeight.w600),
+              ),
+            );
           }),
         ],
       ),
@@ -236,11 +282,11 @@ class _HomeScreenState extends State<HomeScreen> {
               contentPadding: const EdgeInsets.symmetric(vertical: 15),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
+                borderSide: const BorderSide(color: _hair),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
+                borderSide: const BorderSide(color: _hair),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -257,7 +303,17 @@ class _HomeScreenState extends State<HomeScreen> {
                     style: TextStyle(color: _muted)),
               )
             else
-              for (final o in results) _Row(o: o, showCategory: true),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                decoration: BoxDecoration(
+                  color: _tile,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: _hair),
+                ),
+                child: Column(
+                  children: [for (final o in results) _Row(o: o, showCategory: true)],
+                ),
+              ),
           ],
         ],
       ),
@@ -313,34 +369,42 @@ class _HomeScreenState extends State<HomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(child: closing),
-          const SizedBox(width: 56),
+          const SizedBox(width: 24),
           Expanded(child: must),
         ],
       );
     }
-    return Column(children: [closing, const SizedBox(height: 56), must]);
+    return Column(children: [closing, const SizedBox(height: 24), must]);
   }
 
   Widget _listBlock(String title, List<Widget> rows) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Semantics(
-          header: true,
-          child: Text(
-            title,
-            style: const TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.w700,
-              color: _ink,
-              letterSpacing: -0.6,
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: _tile,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _hair),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Semantics(
+            header: true,
+            child: Text(
+              title,
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
+                color: _ink,
+                letterSpacing: -0.4,
+              ),
             ),
           ),
-        ),
-        const SizedBox(height: 12),
-        const Divider(height: 1, thickness: 0.5, color: _hair),
-        ...rows,
-      ],
+          const SizedBox(height: 12),
+          const Divider(height: 1, thickness: 0.5, color: _hair),
+          ...rows,
+        ],
+      ),
     );
   }
 
@@ -359,7 +423,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-/// One section, same tile for all four.
+/// One section, elevated white card with crisp #E2E5EC border.
 class _SectionTile extends StatelessWidget {
   final OpportunitySection section;
   final String? stat; // null = still loading or failed
@@ -379,11 +443,14 @@ class _SectionTile extends StatelessWidget {
       excludeSemantics: true,
       child: Material(
         color: _tile,
-        borderRadius: BorderRadius.circular(20),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: _hair),
+        ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: () => Get.toNamed(section.route),
-          hoverColor: const Color(0x0A000000),
+          hoverColor: const Color(0x06002583),
           child: Padding(
             padding: const EdgeInsets.all(28),
             child: Column(
@@ -454,7 +521,7 @@ class _Row extends StatelessWidget {
       children: [
         InkWell(
           onTap: () => Get.toNamed('/opportunity/${o.id}'),
-          hoverColor: const Color(0x08000000),
+          hoverColor: const Color(0x06002583),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 2),
             child: Row(

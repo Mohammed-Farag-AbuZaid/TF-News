@@ -13,10 +13,19 @@ import 'package:tf_news/utils/constants/colors.dart';
 // Colours (all pass WCAG AA contrast on white)
 // ---------------------------------------------------------------------------
 
-const Color kInk = Color(0xFF111827); // main text
-const Color kMuted = Color(0xFF6B7280); // secondary text (4.8:1 on white)
-const Color kBorder = Color(0xFFE5E7EB);
-const Color kSurface = Color(0xFFF9FAFB);
+class TfPalette {
+  TfPalette._();
+  static const Color bg = Color(0xFFF8F9FB);
+  static const Color surface = Color(0xFFFFFFFF);
+  static const Color border = Color(0xFFE2E5EC);
+  static const Color accent = Color(0xFF002583);
+  static const Color gold = Color(0xFFD99B00);
+}
+
+const Color kInk = Color(0xFF11141C); // main text
+const Color kMuted = Color(0xFF525866); // secondary text
+const Color kBorder = Color(0xFFE2E5EC);
+const Color kSurface = Color(0xFFF8F9FB);
 const Color kGood = Color(0xFF15803D); // green: open / full coverage
 const Color kWarn = Color(0xFFB45309); // amber: closing soon / partial
 const Color kBad = Color(0xFFB91C1C); // red: urgent / must-know

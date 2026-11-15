@@ -1,64 +1,61 @@
 import 'package:flutter/material.dart';
 
+/// TF Unions Sovereign Editorial Palette (`tf_news`)
 class TColors {
   TColors._();
 
-  // App Basic Colors (الألوان الأساسية لهوية التطبيق)
+  // Brand Core
+  static const Color primary = Color(0xFF002583);       // TF Royal Cobalt
+  static const Color primaryDark = Color(0xFF001B61);
+  static const Color secondry = Color(0xFFD99B00);      // TF Academic Gold
+  static const Color accent = Color(0xFF002583);        // Fixed 8-digit hex cobalt accent
 
-  static const Color primary = Color(0xff002583);
-  static const Color secondry = Color(0xffffE24b);
-  static const Color accent = Color(0x0ffbc7ff);
-
-  // Text Colors (ألوان النصوص في كل الشاشات)
-
-  static const Color textprimary = Color(0XFF333333);
-  static const Color textsecondry = Color(0XFF6C757D);
+  // Typography & Ink
+  static const Color textprimary = Color(0xFF11141C);   // Deep Ink
+  static const Color textsecondry = Color(0xFF525866);  // Slate Copy
   static const Color textwhite = Colors.white;
 
-  // Background Colors (ألوان خلفيات الصفحات بالكامل)
+  // Background Surfaces
+  static const Color light = Color(0xFFF8F9FB);         // Elevated Canvas
+  static const Color dark = Color(0xFF0B1120);
+  static const Color primaryBackground = Color(0xFFF8F9FB);
 
-  static const Color light = Color(0XFFF6F6F6);
-  static const Color dark = Color(0XFF272727);
-  static const Color primaryBackground = Color(0XFFF3F5FF);
+  // Containers & Cards
+  static const Color lightContainer = Color(0xFFFFFFFF); // Pure White Widget Card
+  static const Color surfaceAlt = Color(0xFFF3F5F8);
+  static Color darkContainer = const Color(0xFF111827);
 
-  // Background Container Colors
-  static const Color lightContainer = Color(0xFFF6F6F6);
-  static Color darkContainer = Colors.white.withValues(alpha: 0.1);
+  // Buttons
+  static const Color buttonPrimary = Color(0xFF002583);
+  static const Color buttonSecondary = Color(0xFFD99B00);
+  static const Color buttonDisabled = Color(0xFFC5CAD6);
 
-  // Button Colors
-  static const Color buttonPrimary = Color(0xFF4b68ff);
-  static const Color buttonSecondary = Color(0xFF6C757D);
-  static const Color buttonDisabled = Color(0xFFC4C4C4);
+  // Structural Borders
+  static const Color borderPrimary = Color(0xFFE2E5EC);
+  static const Color borderSecondary = Color(0xFFC5CAD6);
 
-  // Border Colors
-  static const Color borderPrimary = Color(0xFFD9D9D9);
-  static const Color borderSecondary = Color(0xFFE6E6E6);
-
-  // Error and Validation Colors
-  static const Color error = Color(0xFFD32F2F);
-  static const Color success = Color(0xFF388E3C);
-  static const Color warning = Color(0xFFF57C00);
-  static const Color info = Color(0xFF1976D2);
+  // Semantics
+  static const Color error = Color(0xFFB91C1C);
+  static const Color success = Color(0xFF15803D);
+  static const Color warning = Color(0xFFB45309);
+  static const Color info = Color(0xFF002583);
 
   // Neutral Shades
-  static const Color black = Color(0xFF232323);
-  static const Color darkerGrey = Color(0xFF4F4F4F);
-  static const Color darkGrey = Color(0xFF939393);
-  static const Color grey = Color(0xFFE0E0E0);
-  static const Color softgrey = Color(0xfff4f4f4);
-  static const Color lightgrey = Color(0xfff9f9f9);
-  static const Color white = Color(0xffffffff);
+  static const Color black = Color(0xFF11141C);
+  static const Color darkerGrey = Color(0xFF2E3138);
+  static const Color darkGrey = Color(0xFF525866);
+  static const Color grey = Color(0xFF7A8191);
+  static const Color softgrey = Color(0xFFF3F5F8);
+  static const Color lightgrey = Color(0xFFF8F9FB);
+  static const Color white = Color(0xFFFFFFFF);
 
-
-  // Gradient Colors
+  // Subtle Royal Surface Gradient
   static const Gradient linearGradient = LinearGradient(
-    begin: Alignment(0.0, 0.0),
-    end: Alignment(0.707, -0.707),
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
     colors: [
-      Color(0xFFFF9A9E),
-      Color(0xFFFAD0C4),
-      Color(0xFFFAD0C4),
+      Color(0xFF002583),
+      Color(0xFF001B61),
     ],
   );
-} 
-
+}

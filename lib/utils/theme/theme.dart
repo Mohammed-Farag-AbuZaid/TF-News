@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tf_news/utils/constants/colors.dart';
 
 import 'custom_themes/appbar_theme.dart';
 import 'custom_themes/bottom_sheet_theme.dart';
@@ -15,10 +16,15 @@ class TAppTheme {
   /// -- Light Theme
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
-    fontFamily: 'Poppins',
     brightness: Brightness.light,
-    primaryColor: Colors.blue,
-    scaffoldBackgroundColor: Colors.white,
+    primaryColor: TColors.primary,
+    scaffoldBackgroundColor: TColors.light,
+    colorScheme: const ColorScheme.light(
+      primary: TColors.primary,
+      secondary: TColors.secondry,
+      surface: TColors.lightContainer,
+      onSurface: TColors.textprimary,
+    ),
     textTheme: TTextTheme.lightTextTheme,
     chipTheme: TChipTheme.lightChipTheme,
     appBarTheme: TAppBarTheme.lightAppBarTheme,
@@ -32,10 +38,14 @@ class TAppTheme {
   /// -- Dark Theme
   static ThemeData darkTheme = ThemeData(
     useMaterial3: true,
-    fontFamily: 'Poppins',
     brightness: Brightness.dark,
-    primaryColor: Colors.blue,
-    scaffoldBackgroundColor: Colors.black,
+    primaryColor: TColors.primary,
+    scaffoldBackgroundColor: TColors.dark,
+    colorScheme: const ColorScheme.dark(
+      primary: TColors.primary,
+      secondary: TColors.secondry,
+      surface: Color(0xFF111827),
+    ),
     textTheme: TTextTheme.darkTextTheme,
     chipTheme: TChipTheme.darkChipTheme,
     appBarTheme: TAppBarTheme.darkAppBarTheme,
