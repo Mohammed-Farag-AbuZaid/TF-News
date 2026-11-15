@@ -157,24 +157,21 @@ class _HomeScreenState extends State<HomeScreen> {
             final wide = c.maxWidth >= 880;
             return CustomScrollView(
               slivers: [
-                // ── Top Masthead + Hero Observatory (Full-bleed Oxford Navy) ─
+                // ── Top Masthead + Open Hero on Calm Alabaster Canvas ──────
                 SliverToBoxAdapter(
                   child: Container(
                     width: double.infinity,
                     decoration: const BoxDecoration(
-                      color: tfNavy,
+                      color: tfPaper,
                       border: Border(
-                        bottom: BorderSide(color: tfNavyLine, width: 1),
+                        bottom: BorderSide(color: tfHair, width: 1),
                       ),
                     ),
-                    child: Column(
-                      children: [
-                        _mastheadBar(pad, small),
-                        const Divider(height: 1, thickness: 1, color: tfNavyLine),
-                        _heroStage(pad, small, wide),
-                      ],
-                    ),
+                    child: _mastheadBar(pad, small),
                   ),
+                ),
+                SliverToBoxAdapter(
+                  child: _heroStage(pad, small, wide),
                 ),
 
                 // ── Warm Architectural Stone Content Canvas ─────────────────
@@ -225,44 +222,63 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    width: 28,
-                    height: 28,
+                    width: 30,
+                    height: 30,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: tfNavyAlt,
-                      borderRadius: BorderRadius.circular(5),
-                      border: Border.all(color: tfGold, width: 1.5),
+                      color: tfNavy,
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Text(
-                      'TF',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.4,
-                      ),
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      alignment: Alignment.center,
+                      children: [
+                        const Text(
+                          'TF',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.3,
+                          ),
+                        ),
+                        Positioned(
+                          top: -2,
+                          right: -2,
+                          child: Container(
+                            width: 7,
+                            height: 7,
+                            decoration: BoxDecoration(
+                              color: tfGood,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: tfPaper, width: 1.4),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(width: 10),
                   const Text(
                     'TF News',
                     style: TextStyle(
-                      fontSize: 16,
+                      fontFamily: 'Bricolage Grotesque',
+                      fontSize: 17,
                       fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                      letterSpacing: -0.2,
+                      color: tfInk,
+                      letterSpacing: -0.3,
                     ),
                   ),
                 ],
               ),
               if (!small) ...[
-                const SizedBox(width: 22),
+                const SizedBox(width: 24),
                 _navChip('Admissions', '/study'),
-                const SizedBox(width: 6),
+                const SizedBox(width: 4),
                 _navChip('Universities', '/study/universities'),
-                const SizedBox(width: 6),
+                const SizedBox(width: 4),
                 _navChip('Programs', '/study/programs'),
-                const SizedBox(width: 6),
+                const SizedBox(width: 4),
                 _navChip('Activities', '/activities'),
               ],
               const Spacer(),
@@ -271,42 +287,55 @@ class _HomeScreenState extends State<HomeScreen> {
                 if (name.isEmpty) {
                   return InkWell(
                     onTap: () => Get.toNamed('/study'),
-                    borderRadius: BorderRadius.circular(5),
+                    borderRadius: BorderRadius.circular(8),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 7,
+                        horizontal: 14,
+                        vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: tfAccent,
-                        borderRadius: BorderRadius.circular(5),
-                        border: Border.all(color: const Color(0xFF2853B8)),
+                        color: tfNavy,
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Text(
-                        'Explore Index',
+                        'Explore index',
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),
                   );
                 }
                 return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
                   decoration: BoxDecoration(
-                    color: tfNavyAlt,
-                    borderRadius: BorderRadius.circular(5),
-                    border: Border.all(color: tfNavyLine),
+                    color: tfTealSoft,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: tfTealBorder),
                   ),
-                  child: Text(
-                    'Scholar · $name',
-                    style: const TextStyle(
-                      fontSize: 12.5,
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 6,
+                        height: 6,
+                        decoration: const BoxDecoration(
+                          color: tfGood,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 7),
+                      Text(
+                        'Scholar · $name',
+                        style: const TextStyle(
+                          fontSize: 12.5,
+                          color: tfGood,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
                 );
               }),
@@ -320,14 +349,14 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _navChip(String label, String route) {
     return InkWell(
       onTap: () => Get.toNamed(route),
-      borderRadius: BorderRadius.circular(5),
+      borderRadius: BorderRadius.circular(8),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         child: Text(
           label,
           style: const TextStyle(
             fontSize: 13.5,
-            color: Color(0xFFD6DCE8),
+            color: tfMuted,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -341,39 +370,58 @@ class _HomeScreenState extends State<HomeScreen> {
     final left = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(width: 36, height: 3, color: tfGold),
-        const SizedBox(height: 16),
-        Text(
-          'Opportunities & Admissions Bulletin',
-          style: TextStyle(
-            fontSize: small ? 13 : 13.5,
-            fontWeight: FontWeight.w700,
-            color: tfGold,
-            letterSpacing: 0.3,
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          decoration: BoxDecoration(
+            color: tfTealSoft,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: tfTealBorder),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 6,
+                height: 6,
+                decoration: const BoxDecoration(
+                  color: tfGood,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 7),
+              const Text(
+                'Opportunities & admissions bulletin',
+                style: TextStyle(
+                  fontSize: 12.5,
+                  fontWeight: FontWeight.w600,
+                  color: tfGood,
+                ),
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 16),
         Text(
           'Scholarships, university admissions, and verified pathways.',
           style: TextStyle(
-            fontSize: small ? 28 : 40,
+            fontFamily: 'Bricolage Grotesque',
+            fontSize: small ? 30 : 42,
             fontWeight: FontWeight.w700,
-            color: Colors.white,
+            color: tfInk,
             letterSpacing: -1.1,
             height: 1.08,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 14),
         const Text(
           'Compare 1,500+ international admission routes, track closing scholarship deadlines, and browse vetted research, internship, and extracurricular programs across Egypt.',
           style: TextStyle(
-            fontSize: 15,
-            color: Color(0xFFD6DCE8),
-            height: 1.55,
+            fontSize: 15.5,
+            color: tfMuted,
+            height: 1.6,
           ),
         ),
         const SizedBox(height: 22),
-        // High-contrast crisp white search input inside dark masthead
         TextField(
           controller: _searchCtrl,
           onChanged: (v) => setState(() => _query = v),
@@ -387,7 +435,34 @@ class _HomeScreenState extends State<HomeScreen> {
             hintStyle: const TextStyle(fontSize: 14, color: tfMuted),
             prefixIcon: const Icon(Icons.search_rounded, size: 19, color: tfMuted),
             suffixIcon: _query.isEmpty
-                ? null
+                ? Padding(
+                    padding: const EdgeInsets.only(right: 10),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 7,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: tfTile,
+                            borderRadius: BorderRadius.circular(5),
+                            border: Border.all(color: const Color(0xFFDCD9D0)),
+                          ),
+                          child: const Text(
+                            '/',
+                            style: TextStyle(
+                              fontFamily: 'JetBrains Mono',
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: tfMuted,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
                 : IconButton(
                     tooltip: 'Clear search',
                     icon: const Icon(Icons.close_rounded, size: 17, color: tfMuted),
@@ -400,20 +475,20 @@ class _HomeScreenState extends State<HomeScreen> {
             fillColor: tfPaper,
             isDense: true,
             contentPadding: const EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: 14,
+              horizontal: 16,
+              vertical: 15,
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(6),
-              borderSide: const BorderSide(color: tfPaper),
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: tfHair),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(6),
-              borderSide: const BorderSide(color: tfPaper),
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: tfHair),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(6),
-              borderSide: const BorderSide(color: tfGold, width: 2),
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: tfAccent, width: 1.5),
             ),
           ),
         ),
@@ -426,7 +501,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Expanded(
               child: _TelemetryCard(
-                code: '01 · LIVE',
+                code: '01 — Live',
                 value: _loading ? '—' : '${_feed.allOpen.length}',
                 label: 'Open listings',
                 highlight: true,
@@ -436,7 +511,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: _TelemetryCard(
-                code: '02 · URGENT',
+                code: '02 — Urgent',
                 value: _loading ? '—' : '${_feed.closing.length}',
                 label: 'Closing soon',
                 onTap: () => setState(() => _bulletinTab = 'Closing Soon'),
@@ -449,7 +524,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Expanded(
               child: _TelemetryCard(
-                code: '03 · ADMISSIONS',
+                code: '03 — Admissions',
                 value: '1,500+',
                 label: 'University routes',
                 onTap: () => Get.toNamed('/study/universities'),
@@ -458,7 +533,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: _TelemetryCard(
-                code: '04 · DIRECTORY',
+                code: '04 — Directory',
                 value: 'Programs',
                 label: 'Browse by field',
                 onTap: () => Get.toNamed('/study/programs'),
@@ -473,13 +548,13 @@ class _HomeScreenState extends State<HomeScreen> {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 1080),
         child: Padding(
-          padding: EdgeInsets.fromLTRB(pad, small ? 24 : 36, pad, small ? 28 : 40),
+          padding: EdgeInsets.fromLTRB(pad, small ? 28 : 44, pad, small ? 24 : 32),
           child: wide
               ? Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Expanded(flex: 6, child: left),
-                    const SizedBox(width: 36),
+                    const SizedBox(width: 40),
                     Expanded(flex: 5, child: right),
                   ],
                 )
@@ -504,10 +579,10 @@ class _HomeScreenState extends State<HomeScreen> {
       width: double.infinity,
       decoration: BoxDecoration(
         color: tfPaper,
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: tfHair),
         boxShadow: const [
-          BoxShadow(color: Color(0x0D0A1931), blurRadius: 8, offset: Offset(0, 2)),
+          BoxShadow(color: Color(0x0A161A22), blurRadius: 4, offset: Offset(0, 1)),
         ],
       ),
       child: IntrinsicHeight(
@@ -515,15 +590,15 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Container(
-              width: 5,
+              width: 4,
               decoration: const BoxDecoration(
-                color: tfGold,
-                borderRadius: BorderRadius.horizontal(left: Radius.circular(5)),
+                color: tfGood,
+                borderRadius: BorderRadius.horizontal(left: Radius.circular(12)),
               ),
             ),
             Expanded(
               child: Padding(
-                padding: EdgeInsets.all(small ? 18 : 26),
+                padding: EdgeInsets.all(small ? 20 : 28),
                 child: wide
                     ? Row(
                         children: [
@@ -533,43 +608,44 @@ class _HomeScreenState extends State<HomeScreen> {
                               children: [
                                 Row(
                                   children: [
-                                    Text(
-                                      'FEATURED DIVISION · 01',
-                                      style: const TextStyle(
-                                        fontSize: 11.5,
-                                        fontWeight: FontWeight.w700,
-                                        color: tfAccent,
-                                        letterSpacing: 0.6,
+                                    const Text(
+                                      '01 · Featured division',
+                                      style: TextStyle(
+                                        fontFamily: 'JetBrains Mono',
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: tfGood,
                                       ),
                                     ),
                                     const SizedBox(width: 10),
                                     Container(
                                       padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 2,
+                                        horizontal: 9,
+                                        vertical: 3,
                                       ),
                                       decoration: BoxDecoration(
                                         color: tfTile,
-                                        borderRadius: BorderRadius.circular(4),
+                                        borderRadius: BorderRadius.circular(6),
                                       ),
                                       child: const Text(
-                                        '1,500+ Verified Routes',
+                                        '1,500+ verified routes',
                                         style: TextStyle(
                                           fontSize: 11.5,
                                           fontWeight: FontWeight.w600,
-                                          color: tfNavy,
+                                          color: tfInk,
                                         ),
                                       ),
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 8),
+                                const SizedBox(height: 10),
                                 Text(
                                   s.title,
                                   style: const TextStyle(
-                                    fontSize: 24,
+                                    fontFamily: 'Bricolage Grotesque',
+                                    fontSize: 25,
                                     fontWeight: FontWeight.w700,
-                                    color: tfNavy,
+                                    color: tfInk,
                                     letterSpacing: -0.5,
                                   ),
                                 ),
@@ -579,7 +655,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   style: const TextStyle(
                                     fontSize: 14.5,
                                     color: tfMuted,
-                                    height: 1.5,
+                                    height: 1.55,
                                   ),
                                 ),
                               ],
@@ -601,7 +677,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 onPressed: () => Get.toNamed('/study/programs'),
                               ),
                               TfPrimaryButton(
-                                label: 'Open Guide',
+                                label: 'Open guide',
                                 icon: Icons.arrow_forward_rounded,
                                 onPressed: () => Get.toNamed(s.route),
                               ),
@@ -613,27 +689,28 @@ class _HomeScreenState extends State<HomeScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'FEATURED DIVISION · 1,500+ ROUTES',
+                            '01 · Verified admissions (1,500+ routes)',
                             style: TextStyle(
+                              fontFamily: 'JetBrains Mono',
                               fontSize: 11.5,
-                              fontWeight: FontWeight.w700,
-                              color: tfAccent,
-                              letterSpacing: 0.5,
+                              fontWeight: FontWeight.w600,
+                              color: tfGood,
                             ),
                           ),
-                          const SizedBox(height: 6),
+                          const SizedBox(height: 8),
                           Text(
                             s.title,
                             style: const TextStyle(
-                              fontSize: 21,
+                              fontFamily: 'Bricolage Grotesque',
+                              fontSize: 22,
                               fontWeight: FontWeight.w700,
-                              color: tfNavy,
+                              color: tfInk,
                             ),
                           ),
                           const SizedBox(height: 6),
                           Text(
                             s.subtitle,
-                            style: const TextStyle(fontSize: 14, color: tfMuted, height: 1.45),
+                            style: const TextStyle(fontSize: 14, color: tfMuted, height: 1.5),
                           ),
                           const SizedBox(height: 16),
                           Wrap(
@@ -641,7 +718,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             runSpacing: 8,
                             children: [
                               TfPrimaryButton(
-                                label: 'Open Guide',
+                                label: 'Open guide',
                                 icon: Icons.arrow_forward_rounded,
                                 onPressed: () => Get.toNamed(s.route),
                               ),
@@ -670,21 +747,23 @@ class _HomeScreenState extends State<HomeScreen> {
       OpportunitySection.programs,
     ];
     if (wide) {
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          for (var i = 0; i < others.length; i++) ...[
-            if (i > 0) const SizedBox(width: 16),
-            Expanded(
-              child: _DivisionCard(
-                index: '0${i + 2}',
-                section: others[i],
-                openCount: _feed.bySection[others[i].id],
-                loading: _loading,
+      return IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (var i = 0; i < others.length; i++) ...[
+              if (i > 0) const SizedBox(width: 16),
+              Expanded(
+                child: _DivisionCard(
+                  index: '0${i + 2}',
+                  section: others[i],
+                  openCount: _feed.bySection[others[i].id],
+                  loading: _loading,
+                ),
               ),
-            ),
+            ],
           ],
-        ],
+        ),
       );
     }
     return Column(
@@ -709,22 +788,26 @@ class _HomeScreenState extends State<HomeScreen> {
       width: double.infinity,
       decoration: BoxDecoration(
         color: tfPaper,
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: tfHair),
+        boxShadow: const [
+          BoxShadow(color: Color(0x0A161A22), blurRadius: 4, offset: Offset(0, 1)),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 14),
+            padding: const EdgeInsets.fromLTRB(22, 16, 22, 14),
             child: Row(
               children: [
                 Text(
                   'Search results (${matches.length})',
                   style: const TextStyle(
-                    fontSize: 16,
+                    fontFamily: 'Bricolage Grotesque',
+                    fontSize: 17,
                     fontWeight: FontWeight.w700,
-                    color: tfNavy,
+                    color: tfInk,
                   ),
                 ),
                 const Spacer(),
@@ -744,7 +827,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const _Empty('No matching scholarships, admissions, or programs found.')
           else
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 22),
               child: Column(
                 children: [for (final o in matches) _Row(o: o)],
               ),
@@ -762,10 +845,10 @@ class _HomeScreenState extends State<HomeScreen> {
       width: double.infinity,
       decoration: BoxDecoration(
         color: tfPaper,
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: tfHair),
         boxShadow: const [
-          BoxShadow(color: Color(0x0D0A1931), blurRadius: 8, offset: Offset(0, 2)),
+          BoxShadow(color: Color(0x0A161A22), blurRadius: 4, offset: Offset(0, 1)),
         ],
       ),
       child: Column(
@@ -773,10 +856,10 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Padding(
             padding: EdgeInsets.fromLTRB(
-              small ? 16 : 24,
-              small ? 16 : 20,
-              small ? 16 : 24,
-              16,
+              small ? 18 : 24,
+              small ? 18 : 22,
+              small ? 18 : 24,
+              18,
             ),
             child: Wrap(
               spacing: 14,
@@ -788,11 +871,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: const [
                     Text(
-                      'Live Bulletins & Deadlines Ledger',
+                      'Live bulletins & deadlines ledger',
                       style: TextStyle(
-                        fontSize: 20,
+                        fontFamily: 'Bricolage Grotesque',
+                        fontSize: 21,
                         fontWeight: FontWeight.w700,
-                        color: tfNavy,
+                        color: tfInk,
                         letterSpacing: -0.4,
                       ),
                     ),
@@ -820,7 +904,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: tfTile,
-                  borderRadius: BorderRadius.circular(6),
+                  borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: tfHair),
                 ),
                 child: Row(
@@ -839,7 +923,7 @@ class _HomeScreenState extends State<HomeScreen> {
             )
           else if (_loading)
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: small ? 16 : 24),
+              padding: EdgeInsets.symmetric(horizontal: small ? 18 : 24),
               child: Column(
                 children: [for (var i = 0; i < 4; i++) const _RowSkeleton()],
               ),
@@ -848,7 +932,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const _Empty('No active entries match this filter right now.')
           else
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: small ? 16 : 24),
+              padding: EdgeInsets.symmetric(horizontal: small ? 18 : 24),
               child: Column(
                 children: [
                   for (var i = 0; i < rows.length; i++)
@@ -863,7 +947,7 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 // ---------------------------------------------------------------------------
-// Telemetry Card in Navy Hero
+// Telemetry Card
 // ---------------------------------------------------------------------------
 
 class _TelemetryCard extends StatefulWidget {
@@ -890,6 +974,13 @@ class _TelemetryCardState extends State<_TelemetryCard> {
 
   @override
   Widget build(BuildContext context) {
+    final bgColor = widget.highlight
+        ? (_hover ? const Color(0xFFE3F3EF) : tfTealSoft)
+        : (_hover ? const Color(0xFFFAF9F6) : tfPaper);
+    final borderColor = widget.highlight
+        ? tfGood
+        : (_hover ? tfAccent : tfHair);
+
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _hover = true),
@@ -900,14 +991,19 @@ class _TelemetryCardState extends State<_TelemetryCard> {
           duration: const Duration(milliseconds: 140),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: _hover ? const Color(0xFF142C56) : tfNavyAlt,
-            borderRadius: BorderRadius.circular(6),
+            color: bgColor,
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: widget.highlight
-                  ? tfGold
-                  : (_hover ? const Color(0xFF345694) : tfNavyLine),
-              width: widget.highlight ? 1.5 : 1,
+              color: borderColor,
+              width: widget.highlight || _hover ? 1.5 : 1,
             ),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x0A161A22),
+                blurRadius: 4,
+                offset: Offset(0, 1),
+              ),
+            ],
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -915,19 +1011,20 @@ class _TelemetryCardState extends State<_TelemetryCard> {
               Text(
                 widget.code,
                 style: TextStyle(
-                  fontSize: 10.5,
-                  fontWeight: FontWeight.w700,
-                  color: widget.highlight ? tfGold : const Color(0xFFA9B7D0),
-                  letterSpacing: 0.6,
+                  fontFamily: 'JetBrains Mono',
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: widget.highlight ? tfGood : tfMuted,
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 widget.value,
-                style: const TextStyle(
-                  fontSize: 22,
+                style: TextStyle(
+                  fontFamily: 'Bricolage Grotesque',
+                  fontSize: 23,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: widget.highlight ? tfGood : tfInk,
                   letterSpacing: -0.5,
                 ),
               ),
@@ -936,7 +1033,7 @@ class _TelemetryCardState extends State<_TelemetryCard> {
                 widget.label,
                 style: const TextStyle(
                   fontSize: 12.5,
-                  color: Color(0xFFD6DCE8),
+                  color: tfMuted,
                 ),
               ),
             ],
@@ -986,19 +1083,19 @@ class _DivisionCardState extends State<_DivisionCard> {
         onTap: () => Get.toNamed(s.route),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 140),
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(22),
           decoration: BoxDecoration(
             color: tfPaper,
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: _hover ? tfAccent : tfHair,
               width: _hover ? 1.5 : 1,
             ),
             boxShadow: const [
               BoxShadow(
-                color: Color(0x0D0A1931),
-                blurRadius: 6,
-                offset: Offset(0, 2),
+                color: Color(0x0A161A22),
+                blurRadius: 4,
+                offset: Offset(0, 1),
               ),
             ],
           ),
@@ -1014,14 +1111,15 @@ class _DivisionCardState extends State<_DivisionCard> {
                     ),
                     decoration: BoxDecoration(
                       color: tfTile,
-                      borderRadius: BorderRadius.circular(4),
+                      borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
                       widget.index,
                       style: const TextStyle(
+                        fontFamily: 'JetBrains Mono',
                         fontSize: 11.5,
-                        fontWeight: FontWeight.w700,
-                        color: tfNavy,
+                        fontWeight: FontWeight.w600,
+                        color: tfInk,
                       ),
                     ),
                   ),
@@ -1034,7 +1132,7 @@ class _DivisionCardState extends State<_DivisionCard> {
                       style: const TextStyle(
                         fontSize: 12.5,
                         fontWeight: FontWeight.w600,
-                        color: tfAccent,
+                        color: tfGood,
                       ),
                     ),
                 ],
@@ -1043,9 +1141,10 @@ class _DivisionCardState extends State<_DivisionCard> {
               Text(
                 s.title,
                 style: const TextStyle(
-                  fontSize: 18,
+                  fontFamily: 'Bricolage Grotesque',
+                  fontSize: 19,
                   fontWeight: FontWeight.w700,
-                  color: tfNavy,
+                  color: tfInk,
                   letterSpacing: -0.3,
                 ),
               ),
@@ -1055,7 +1154,7 @@ class _DivisionCardState extends State<_DivisionCard> {
                 style: const TextStyle(
                   fontSize: 13.5,
                   color: tfMuted,
-                  height: 1.45,
+                  height: 1.5,
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -1067,7 +1166,7 @@ class _DivisionCardState extends State<_DivisionCard> {
                     'Browse listings',
                     style: TextStyle(
                       fontSize: 13,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                       color: tfAccent,
                     ),
                   ),
@@ -1105,6 +1204,10 @@ class _RowState extends State<_Row> {
     final label = o.dateLabel(DateTime.now());
     final urgent = label.tone == DateTone.urgent;
     final dateColor = label.color(tfMuted);
+    final rawSection = o.section.trim();
+    final sectionLabel = rawSection.isEmpty
+        ? 'Opportunity'
+        : '${rawSection[0].toUpperCase()}${rawSection.substring(1)}';
 
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -1115,11 +1218,11 @@ class _RowState extends State<_Row> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 16),
           decoration: BoxDecoration(
-            color: _hover ? const Color(0xFFF9F8F5) : Colors.transparent,
+            color: _hover ? const Color(0xFFFAF9F6) : Colors.transparent,
             border: Border(
               bottom: widget.isLast
                   ? BorderSide.none
-                  : const BorderSide(color: tfHair, width: 0.7),
+                  : const BorderSide(color: tfHair, width: 0.8),
             ),
           ),
           child: Row(
@@ -1133,20 +1236,19 @@ class _RowState extends State<_Row> {
                       children: [
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 7,
-                            vertical: 2,
+                            horizontal: 8,
+                            vertical: 3,
                           ),
                           decoration: BoxDecoration(
                             color: tfTile,
-                            borderRadius: BorderRadius.circular(3),
+                            borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
-                            o.section.toUpperCase(),
+                            sectionLabel,
                             style: const TextStyle(
-                              fontSize: 10.5,
-                              fontWeight: FontWeight.w700,
-                              color: tfNavy,
-                              letterSpacing: 0.4,
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w600,
+                              color: tfInk,
                             ),
                           ),
                         ),
@@ -1169,7 +1271,7 @@ class _RowState extends State<_Row> {
                       style: TextStyle(
                         fontSize: 15.5,
                         fontWeight: FontWeight.w700,
-                        color: _hover ? tfAccent : tfNavy,
+                        color: _hover ? tfAccent : tfInk,
                       ),
                     ),
                     if (o.shortDescription.isNotEmpty) ...[

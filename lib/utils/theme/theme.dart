@@ -17,6 +17,8 @@ class TAppTheme {
   static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
+    fontFamily: 'Plus Jakarta Sans',
+    fontFamilyFallback: const ['Poppins', 'sans-serif'],
     primaryColor: TColors.primary,
     scaffoldBackgroundColor: TColors.light,
     colorScheme: const ColorScheme.light(
@@ -39,12 +41,14 @@ class TAppTheme {
   static ThemeData darkTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
+    fontFamily: 'Plus Jakarta Sans',
+    fontFamilyFallback: const ['Poppins', 'sans-serif'],
     primaryColor: TColors.primary,
     scaffoldBackgroundColor: TColors.dark,
     colorScheme: const ColorScheme.dark(
       primary: TColors.primary,
       secondary: TColors.secondry,
-      surface: Color(0xFF102447),
+      surface: Color(0xFF1B365D),
     ),
     textTheme: TTextTheme.darkTextTheme,
     chipTheme: TChipTheme.darkChipTheme,

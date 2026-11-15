@@ -1,30 +1,32 @@
 // lib/utils/ui/tf_minimal.dart
-// Shared UI primitives for tf_news (TF Oxford & Stone architectural system):
-// Deep Oxford Navy masthead, Warm Architectural Stone canvas (#ECEAE4),
-// Crisp White widget ledgers (#FFFFFF) bordered by Stone Hairlines (#CFCBC2),
-// Royal Cobalt (#14388C) primary actions, and Academic Brass (#C88A14) marks.
+// Shared UI primitives for tf_news (Calm Alabaster & Fjord Slate):
+// Quiet Alabaster canvas (#F3F2EE), Crisp Widget White (#FFFFFF) bordered by
+// Hairlines (#DFDDD6), Recessed Control Wells (#EAE8E1), Fjord Slate (#1B365D)
+// primary actions, and Botanical Teal (#0F766E) crafted accents.
 import 'package:flutter/material.dart';
 import 'package:tf_news/utils/constants/colors.dart';
 import 'package:tf_news/utils/ui/tf_ui.dart'
     show tfGoBack, tfGoHome, tfSidePadding, TfBreakpoints, Pulse, SkeletonBox;
 
 // ---------------------------------------------------------------------------
-// Colors (TF Oxford & Stone)
+// Colors (Calm Alabaster & Fjord Slate)
 // ---------------------------------------------------------------------------
 
-const Color tfInk = Color(0xFF12161F);
-const Color tfMuted = Color(0xFF4A5262);
-const Color tfTile = Color(0xFFE2DFD7);
-const Color tfHair = Color(0xFFCFCBC2);
-const Color tfAccent = TColors.primary; // #14388C Royal Cobalt
+const Color tfInk = Color(0xFF161A22);
+const Color tfMuted = Color(0xFF525866);
+const Color tfTile = Color(0xFFEAE8E1);
+const Color tfHair = Color(0xFFDFDDD6);
+const Color tfAccent = TColors.primary; // #1B365D Fjord Slate
 const Color tfUrgent = Color(0xFFB91C1C);
-const Color tfGood = Color(0xFF15803D);
+const Color tfGood = Color(0xFF0F766E);
+const Color tfTealSoft = Color(0xFFEDF7F5);
+const Color tfTealBorder = Color(0xFFBCE3DC);
 
-const Color tfNavy = Color(0xFF0A1931);
-const Color tfNavyAlt = Color(0xFF102447);
-const Color tfNavyLine = Color(0xFF1E3A6D);
-const Color tfGold = Color(0xFFC88A14);
-const Color tfCanvas = Color(0xFFECEAE4);
+const Color tfNavy = Color(0xFF1B365D);
+const Color tfNavyAlt = Color(0xFF132847);
+const Color tfNavyLine = Color(0xFFDFDDD6);
+const Color tfGold = Color(0xFF0F766E);
+const Color tfCanvas = Color(0xFFF3F2EE);
 const Color tfPaper = Color(0xFFFFFFFF);
 
 // ---------------------------------------------------------------------------
@@ -107,13 +109,13 @@ class TfPage extends StatelessWidget {
             final l = _layoutFor(c.maxWidth);
             return Column(
               children: [
-                // Full-width Deep Oxford Navy masthead matching www.tfunions.com
+                // Full-width crisp white masthead over Calm Alabaster canvas
                 Container(
                   width: double.infinity,
                   decoration: const BoxDecoration(
-                    color: tfNavy,
+                    color: tfPaper,
                     border: Border(
-                      bottom: BorderSide(color: tfNavyLine, width: 1),
+                      bottom: BorderSide(color: tfHair, width: 1),
                     ),
                   ),
                   alignment: Alignment.center,
@@ -171,24 +173,24 @@ class TfTopBar extends StatelessWidget {
           if (backLabel != null)
             InkWell(
               onTap: () => tfGoBack(context),
-              borderRadius: BorderRadius.circular(6),
+              borderRadius: BorderRadius.circular(8),
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
                 decoration: BoxDecoration(
-                  color: tfNavyAlt,
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: tfNavyLine),
+                  color: tfCanvas,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: tfHair),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.arrow_back_rounded, size: 16, color: Colors.white),
+                    const Icon(Icons.arrow_back_rounded, size: 15, color: tfInk),
                     const SizedBox(width: 6),
                     Text(
                       backLabel!,
                       style: const TextStyle(
                         fontSize: 13.5,
-                        color: Colors.white,
+                        color: tfInk,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -201,39 +203,58 @@ class TfTopBar extends StatelessWidget {
           const Spacer(),
           InkWell(
             onTap: tfGoHome,
-            borderRadius: BorderRadius.circular(6),
+            borderRadius: BorderRadius.circular(8),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    width: 24,
-                    height: 24,
+                    width: 28,
+                    height: 28,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: tfNavyAlt,
-                      borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: tfGold, width: 1.5),
+                      color: tfNavy,
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Text(
-                      'TF',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.4,
-                      ),
+                    child: Stack(
+                      clipBehavior: Clip.none,
+                      alignment: Alignment.center,
+                      children: [
+                        const Text(
+                          'TF',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.3,
+                          ),
+                        ),
+                        Positioned(
+                          top: -1,
+                          right: -1,
+                          child: Container(
+                            width: 6,
+                            height: 6,
+                            decoration: BoxDecoration(
+                              color: tfGood,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: tfPaper, width: 1.2),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 9),
                   const Text(
                     'TF News',
                     style: TextStyle(
-                      fontSize: 15,
+                      fontFamily: 'Bricolage Grotesque',
+                      fontSize: 16,
                       fontWeight: FontWeight.w700,
-                      color: Colors.white,
-                      letterSpacing: -0.2,
+                      color: tfInk,
+                      letterSpacing: -0.25,
                     ),
                   ),
                 ],
@@ -260,32 +281,36 @@ class TfTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(small ? 18 : 24),
+      padding: EdgeInsets.all(small ? 20 : 28),
       decoration: BoxDecoration(
         color: tfPaper,
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: tfHair),
         boxShadow: const [
-          BoxShadow(color: Color(0x0D0A1931), blurRadius: 8, offset: Offset(0, 2)),
+          BoxShadow(color: Color(0x0A161A22), blurRadius: 4, offset: Offset(0, 1)),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            width: 36,
-            height: 3,
-            color: tfGold,
+            width: 28,
+            height: 2,
+            decoration: BoxDecoration(
+              color: tfGood,
+              borderRadius: BorderRadius.circular(2),
+            ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           Semantics(
             header: true,
             child: Text(
               title,
               style: TextStyle(
+                fontFamily: 'Bricolage Grotesque',
                 fontSize: small ? 28 : 40,
                 fontWeight: FontWeight.w700,
-                color: tfNavy,
+                color: tfInk,
                 letterSpacing: -0.9,
                 height: 1.08,
               ),
@@ -326,7 +351,7 @@ class TfTabs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 44,
+      height: 46,
       decoration: const BoxDecoration(
         color: tfPaper,
         border: Border(
@@ -335,13 +360,13 @@ class TfTabs extends StatelessWidget {
           right: BorderSide(color: tfHair),
           bottom: BorderSide(color: tfHair),
         ),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(6)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
       ),
       child: ListView.separated(
         scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: items.length,
-        separatorBuilder: (_, i) => const SizedBox(width: 22),
+        separatorBuilder: (_, i) => const SizedBox(width: 24),
         itemBuilder: (_, i) {
           final item = items[i];
           final active = item == selected;
@@ -354,7 +379,7 @@ class TfTabs extends StatelessWidget {
                 border: Border(
                   bottom: BorderSide(
                     color: active ? tfAccent : Colors.transparent,
-                    width: 2.5,
+                    width: 2,
                   ),
                 ),
               ),
@@ -363,7 +388,7 @@ class TfTabs extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: active ? FontWeight.w700 : FontWeight.w500,
-                  color: active ? tfNavy : tfMuted,
+                  color: active ? tfInk : tfMuted,
                 ),
               ),
             ),
@@ -395,8 +420,8 @@ class TfSegmented extends StatelessWidget {
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
         color: tfTile,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: tfHair),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFFDCD9D0)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -404,20 +429,20 @@ class TfSegmented extends StatelessWidget {
           for (final item in items)
             InkWell(
               onTap: () => onSelected(item),
-              borderRadius: BorderRadius.circular(4),
+              borderRadius: BorderRadius.circular(8),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 140),
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
                 decoration: BoxDecoration(
                   color: item == selected ? tfPaper : Colors.transparent,
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius: BorderRadius.circular(8),
                   border: Border.all(
                     color: item == selected ? tfHair : Colors.transparent,
                   ),
                   boxShadow: item == selected
                       ? const [
                           BoxShadow(
-                            color: Color(0x140A1931),
+                            color: Color(0x0A161A22),
                             blurRadius: 3,
                             offset: Offset(0, 1),
                           ),
@@ -429,8 +454,8 @@ class TfSegmented extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight:
-                        item == selected ? FontWeight.w700 : FontWeight.w600,
-                    color: item == selected ? tfNavy : tfMuted,
+                        item == selected ? FontWeight.w700 : FontWeight.w500,
+                    color: item == selected ? tfInk : tfMuted,
                   ),
                 ),
               ),
@@ -466,9 +491,9 @@ class TfMenu extends StatelessWidget {
     return PopupMenuButton<String>(
       onSelected: onSelected,
       color: tfPaper,
-      elevation: 4,
+      elevation: 3,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(10),
         side: const BorderSide(color: tfHair),
       ),
       itemBuilder: (_) => [
@@ -481,7 +506,7 @@ class TfMenu extends StatelessWidget {
                 SizedBox(
                   width: 20,
                   child: e.key == value
-                      ? const Icon(Icons.check, size: 15, color: tfAccent)
+                      ? const Icon(Icons.check, size: 15, color: tfGood)
                       : null,
                 ),
                 Text(
@@ -500,7 +525,7 @@ class TfMenu extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: tfPaper,
-          borderRadius: BorderRadius.circular(6),
+          borderRadius: BorderRadius.circular(10),
           border: Border.all(color: tfHair),
         ),
         child: Row(
@@ -514,8 +539,8 @@ class TfMenu extends StatelessWidget {
               valueLabel,
               style: const TextStyle(
                 fontSize: 13,
-                color: tfNavy,
-                fontWeight: FontWeight.w700,
+                color: tfInk,
+                fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(width: 4),
@@ -566,17 +591,17 @@ class TfSearch extends StatelessWidget {
         isDense: true,
         filled: true,
         fillColor: tfPaper,
-        contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+        contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(6),
+          borderRadius: BorderRadius.circular(10),
           borderSide: const BorderSide(color: tfHair),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(6),
+          borderRadius: BorderRadius.circular(10),
           borderSide: const BorderSide(color: tfHair),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(6),
+          borderRadius: BorderRadius.circular(10),
           borderSide: const BorderSide(color: tfAccent, width: 1.5),
         ),
       ),
@@ -609,9 +634,9 @@ class TfPrimaryButton extends StatelessWidget {
       style: FilledButton.styleFrom(
         backgroundColor: tfAccent,
         foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-        textStyle: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w700),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -639,10 +664,10 @@ class TfTextAction extends StatelessWidget {
     return TextButton(
       onPressed: onPressed,
       style: TextButton.styleFrom(
-        foregroundColor: tfAccent,
+        foregroundColor: tfInk,
         backgroundColor: tfPaper,
         side: const BorderSide(color: tfHair),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
       ),
@@ -685,24 +710,28 @@ class TfEmpty extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
       decoration: BoxDecoration(
         color: tfPaper,
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: tfHair),
       ),
       child: Column(
         children: [
           Container(
-            width: 32,
-            height: 3,
-            color: tfGold,
+            width: 28,
+            height: 2,
+            decoration: BoxDecoration(
+              color: tfGood,
+              borderRadius: BorderRadius.circular(2),
+            ),
           ),
           const SizedBox(height: 16),
           Text(
             title,
             textAlign: TextAlign.center,
             style: const TextStyle(
+              fontFamily: 'Bricolage Grotesque',
               fontSize: 18,
               fontWeight: FontWeight.w700,
-              color: tfNavy,
+              color: tfInk,
             ),
           ),
           if (message != null) ...[
@@ -740,7 +769,7 @@ class TfRowSkeletons extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       decoration: BoxDecoration(
         color: tfPaper,
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(color: tfHair),
       ),
       child: Pulse(

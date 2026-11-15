@@ -15,24 +15,27 @@ import 'package:tf_news/utils/constants/colors.dart';
 
 class TfPalette {
   TfPalette._();
-  static const Color bg = Color(0xFFECEAE4);
+  static const Color bg = Color(0xFFF3F2EE);
   static const Color surface = Color(0xFFFFFFFF);
-  static const Color surfaceAlt = Color(0xFFE2DFD7);
-  static const Color border = Color(0xFFCFCBC2);
-  static const Color navy = Color(0xFF0A1931);
-  static const Color navyAlt = Color(0xFF102447);
-  static const Color navyLine = Color(0xFF1E3A6D);
-  static const Color accent = Color(0xFF14388C);
-  static const Color gold = Color(0xFFC88A14);
+  static const Color surfaceAlt = Color(0xFFEAE8E1);
+  static const Color border = Color(0xFFDFDDD6);
+  static const Color navy = Color(0xFF1B365D);
+  static const Color navyAlt = Color(0xFF132847);
+  static const Color navyLine = Color(0xFFDFDDD6);
+  static const Color accent = Color(0xFF1B365D);
+  static const Color teal = Color(0xFF0F766E);
+  static const Color tealSoft = Color(0xFFEDF7F5);
+  static const Color tealBorder = Color(0xFFBCE3DC);
+  static const Color gold = Color(0xFF0F766E);
 }
 
-const Color kInk = Color(0xFF12161F); // main text
-const Color kMuted = Color(0xFF4A5262); // secondary text
-const Color kBorder = Color(0xFFCFCBC2);
-const Color kSurface = Color(0xFFECEAE4);
-const Color kGood = Color(0xFF15803D); // green: open / full coverage
-const Color kWarn = Color(0xFFB45309); // amber: closing soon / partial
-const Color kBad = Color(0xFFB91C1C); // red: urgent / must-know
+const Color kInk = Color(0xFF161A22); // main text
+const Color kMuted = Color(0xFF525866); // secondary text
+const Color kBorder = Color(0xFFDFDDD6);
+const Color kSurface = Color(0xFFF3F2EE);
+const Color kGood = Color(0xFF0F766E); // teal: open / full coverage
+const Color kWarn = Color(0xFFB45309); // ochre: closing soon / partial
+const Color kBad = Color(0xFFB91C1C); // crimson: urgent / must-know
 
 // ---------------------------------------------------------------------------
 // Responsive helpers
