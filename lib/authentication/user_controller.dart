@@ -42,19 +42,20 @@ class UserController extends GetxController {
     try {
       await fetchUserRecord();
 
-      if (userCredentials != null) {
-        final nameParts = UserModel.nameParts(
-          userCredentials.user!.displayName ?? '',
-        );
+      if (userCredentials != null && userCredentials.user != null) {
+        final fbUser = userCredentials.user!;
+        final fallbackName =
+            fbUser.displayName ?? fbUser.email?.split('@').first ?? 'Scholar';
+        final nameParts = UserModel.nameParts(fallbackName.trim());
 
         final user = UserModel(
-          id: userCredentials.user!.uid,
-          firstName: nameParts[0],
-          lastName: nameParts[1],
-          username: userCredentials.user!.displayName ?? '',
-          email: userCredentials.user!.email ?? '',
-          profilePicture: userCredentials.user!.photoURL ?? '',
-          phone: userCredentials.user!.phoneNumber ?? '',
+          id: fbUser.uid,
+          firstName: nameParts.isNotEmpty ? nameParts[0] : 'Scholar',
+          lastName: nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '',
+          username: fallbackName,
+          email: fbUser.email ?? '',
+          profilePicture: fbUser.photoURL ?? '',
+          phone: fbUser.phoneNumber ?? '',
           academicLevel: '',
           grade: '',
           stemSchool: '',

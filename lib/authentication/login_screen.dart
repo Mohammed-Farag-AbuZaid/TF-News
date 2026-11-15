@@ -5,13 +5,12 @@ import 'package:get/get.dart';
 import 'package:tf_news/authentication/auth_kit.dart';
 import 'package:tf_news/authentication/forget_password_screen.dart';
 import 'package:tf_news/authentication/login_controller.dart';
+import 'package:tf_news/utils/constants/image_strings.dart';
 import 'package:tf_news/utils/popups/loaders.dart';
 import 'package:tf_news/utils/ui/tf_minimal.dart';
 import 'package:tf_news/utils/validators/validation.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-// NOTE: the "Sign in with Google" button stays out, as before.
-// LoginController.googleLogin() still exists if you want to bring it back.
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
@@ -20,7 +19,7 @@ class LoginScreen extends StatelessWidget {
     return const AuthFrame(
       showLogo: true,
       title: 'Welcome back',
-      subtitle: 'Sign in with your TF account.',
+      subtitle: 'Sign in with your TF Passport or Google account.',
       child: LoginForm(),
     );
   }
@@ -113,7 +112,46 @@ class LoginForm extends StatelessWidget {
             expand: true,
             onPressed: () => controller.emailAndPasswordLogin(),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
+          const Row(
+            children: [
+              Expanded(child: Divider(color: tfHair, height: 1)),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 12),
+                child: Text(
+                  'or continue with',
+                  style: TextStyle(color: tfMuted, fontSize: 12.5),
+                ),
+              ),
+              Expanded(child: Divider(color: tfHair, height: 1)),
+            ],
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: OutlinedButton.icon(
+              onPressed: () => controller.googleLogin(),
+              style: OutlinedButton.styleFrom(
+                backgroundColor: tfPaper,
+                foregroundColor: tfInk,
+                side: const BorderSide(color: tfHair),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              icon: const Image(
+                width: 20,
+                height: 20,
+                image: AssetImage(TImages.google),
+              ),
+              label: const Text(
+                'Continue with Google',
+                style: TextStyle(fontSize: 14.5, fontWeight: FontWeight.w600),
+              ),
+            ),
+          ),
+          const SizedBox(height: 14),
           Center(
             child: TfTextAction(
               label: 'Create a TF account',

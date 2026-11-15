@@ -6,10 +6,8 @@ import 'package:cross_file/cross_file.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:tf_news/authentication/user_model.dart';
-import 'package:tf_news/data/opportunity.dart' show kTfApiBaseUrl;
 import 'package:tf_news/utils/exceptions/firebase_exceptions.dart';
 import 'package:tf_news/utils/exceptions/formate_exceptions.dart';
 
@@ -22,32 +20,26 @@ class UserRepository extends GetxService {
 
   Future<void> saveUserRecord(UserModel user) async {
     try {
-      await http
-          .put(
-            Uri.parse('$kTfApiBaseUrl/api/collections/users/${user.id}'),
-            headers: {'Content-Type': 'application/json'},
-            body: jsonEncode({
-              'firstName': user.firstName,
-              'lastName': user.lastName,
-              'username': user.username,
-              'email': user.email,
-              'phone': user.phone,
-              'profilePicture': user.profilePicture,
-              'academicLevel': user.academicLevel,
-              'grade': user.grade,
-              'stemSchool': user.stemSchool,
-              'gender': user.gender,
-              'birthDate': user.birthDate,
-            }),
-          )
-          .timeout(const Duration(seconds: 6));
-      return;
-    } catch (_) {}
-
-    try {
       final docRef = _db.collection("users").doc(user.id);
       final existing = await docRef.get();
-      if (existing.exists) return;
+      if (existing.exists) {
+        final existingData = existing.data() ?? <String, dynamic>{};
+        final updates = <String, dynamic>{};
+        user.toJson().forEach((key, value) {
+          if (value != null &&
+              value is! FieldValue &&
+              value.toString().trim().isNotEmpty) {
+            final prev = existingData[key];
+            if (prev == null || prev.toString().trim().isEmpty) {
+              updates[key] = value;
+            }
+          }
+        });
+        if (updates.isNotEmpty) {
+          await docRef.set(updates, SetOptions(merge: true));
+        }
+        return;
+      }
 
       await docRef.set(user.toJson());
     } on FirebaseException catch (e) {
@@ -62,40 +54,12 @@ class UserRepository extends GetxService {
   }
 
   Future<UserModel> fetchUserDetails() {
-    final vpsUser = GetStorage().read('tf_vps_user');
-    if (vpsUser is Map && vpsUser['id'] != null) {
-      return fetchUserById(vpsUser['id'].toString());
-    }
     return fetchUserById(FirebaseAuth.instance.currentUser?.uid ?? '');
   }
 
-  /// Fetch user details by user ID (VPS API primary, Firestore fallback)
+  /// Fetch user details directly from Cloud Firestore `users/{uid}`
   Future<UserModel> fetchUserById(String userId) async {
     if (userId.isEmpty) return UserModel.empty();
-    try {
-      final res = await http
-          .get(Uri.parse('$kTfApiBaseUrl/api/collections/users/$userId'))
-          .timeout(const Duration(seconds: 6));
-      if (res.statusCode == 200) {
-        final body = jsonDecode(res.body) as Map<String, dynamic>;
-        final data = (body['data'] as Map<String, dynamic>?) ?? body;
-        return UserModel(
-          id: userId,
-          firstName: (data['firstName'] ?? '').toString(),
-          lastName: (data['lastName'] ?? '').toString(),
-          username: (data['username'] ?? '').toString(),
-          email: (data['email'] ?? '').toString(),
-          phone: (data['phone'] ?? '').toString(),
-          profilePicture: (data['profilePicture'] ?? '').toString(),
-          academicLevel: (data['academicLevel'] ?? '').toString(),
-          grade: (data['grade'] ?? '').toString(),
-          stemSchool: (data['stemSchool'] ?? '').toString(),
-          gender: (data['gender'] ?? '').toString(),
-          birthDate: (data['birthDate'] ?? '').toString(),
-        );
-      }
-    } catch (_) {}
-
     try {
       final documentSnapshot = await _db.collection("users").doc(userId).get();
       if (documentSnapshot.exists) {
@@ -114,33 +78,10 @@ class UserRepository extends GetxService {
 
   Future<void> updateUserDetails(UserModel updatedUser) async {
     try {
-      await http
-          .put(
-            Uri.parse('$kTfApiBaseUrl/api/collections/users/${updatedUser.id}'),
-            headers: {'Content-Type': 'application/json'},
-            body: jsonEncode({
-              'firstName': updatedUser.firstName,
-              'lastName': updatedUser.lastName,
-              'username': updatedUser.username,
-              'email': updatedUser.email,
-              'phone': updatedUser.phone,
-              'profilePicture': updatedUser.profilePicture,
-              'academicLevel': updatedUser.academicLevel,
-              'grade': updatedUser.grade,
-              'stemSchool': updatedUser.stemSchool,
-              'gender': updatedUser.gender,
-              'birthDate': updatedUser.birthDate,
-            }),
-          )
-          .timeout(const Duration(seconds: 6));
-      return;
-    } catch (_) {}
-
-    try {
       await _db
           .collection("users")
           .doc(updatedUser.id)
-          .update(updatedUser.toJson());
+          .set(updatedUser.toJson(), SetOptions(merge: true));
     } on FirebaseException catch (e) {
       throw TFirebaseException(e.code).message;
     } on FormatException catch (_) {
@@ -151,23 +92,13 @@ class UserRepository extends GetxService {
   }
 
   Future<void> updateSingleField(Map<String, dynamic> json) async {
-    final vpsUser = GetStorage().read('tf_vps_user');
-    final uid = (vpsUser is Map && vpsUser['id'] != null)
-        ? vpsUser['id'].toString()
-        : (FirebaseAuth.instance.currentUser?.uid ?? '');
+    final uid = FirebaseAuth.instance.currentUser?.uid ?? '';
+    if (uid.isEmpty) return;
     try {
-      await http
-          .put(
-            Uri.parse('$kTfApiBaseUrl/api/collections/users/$uid'),
-            headers: {'Content-Type': 'application/json'},
-            body: jsonEncode(json),
-          )
-          .timeout(const Duration(seconds: 6));
-      return;
-    } catch (_) {}
-
-    try {
-      await _db.collection("users").doc(uid).update(json);
+      await _db
+          .collection("users")
+          .doc(uid)
+          .set(json, SetOptions(merge: true));
     } on FirebaseException catch (e) {
       throw TFirebaseException(e.code).message;
     } on FormatException catch (_) {
@@ -178,13 +109,6 @@ class UserRepository extends GetxService {
   }
 
   Future<void> removeUserRecord(String userId) async {
-    try {
-      await http
-          .delete(Uri.parse('$kTfApiBaseUrl/api/collections/users/$userId'))
-          .timeout(const Duration(seconds: 6));
-      return;
-    } catch (_) {}
-
     try {
       await _db.collection("users").doc(userId).delete();
     } on FirebaseException catch (e) {

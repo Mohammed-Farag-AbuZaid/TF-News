@@ -80,8 +80,12 @@ class LoginController extends GetxController {
       }
       final userCredentials =
           await AuthenticationRepository.instance.signInWithGoogle();
+      if (userCredentials == null) {
+        TFuelScreenLoader.stopLoading();
+        return;
+      }
       final isNewUser =
-          userCredentials?.additionalUserInfo?.isNewUser ?? false;
+          userCredentials.additionalUserInfo?.isNewUser ?? false;
       if (isNewUser) {
         await userController.saveUserRecord(userCredentials);
       }
