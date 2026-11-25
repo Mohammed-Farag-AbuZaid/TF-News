@@ -1,0 +1,27 @@
+name: Flutter CI (TF News)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  analyze-and-build:
+    name: Analyze, Test & Web Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: flutter pub get
+      - run: flutter analyze --fatal-infos
+      - run: |
+          if [ -d test ] && [ "$(find test -name '*_test.dart' | wc -l)" -gt 0 ]; then
+            flutter test
+          else
+            echo "No unit tests present yet"
+          fi
+      - run: flutter build web --release --no-wasm-dry-run --no-tree-shake-icons

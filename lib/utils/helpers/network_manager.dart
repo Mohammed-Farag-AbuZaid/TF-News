@@ -19,12 +19,16 @@ class NetworkManager extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    _connectivitySubscription = _connectivity.onConnectivityChanged.listen((results) {
-    });
+    _connectivitySubscription =
+        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
   }
 
-  Future<void> _updateConnectionStatus(ConnectivityResult result) async {
-    _connectivityResult.value = result;
+  Future<void> _updateConnectionStatus(List<ConnectivityResult> results) async {
+    final primary = results.firstWhere(
+      (r) => r != ConnectivityResult.none,
+      orElse: () => ConnectivityResult.none,
+    );
+    _connectivityResult.value = primary;
     if (_connectivityResult.value == ConnectivityResult.none) {
       TLoaders.warningSnackBar(title: "No internet connection");
     }
@@ -32,12 +36,8 @@ class NetworkManager extends GetxController {
 
   Future<bool> isConnected() async {
     try {
-      final result = await _connectivity.checkConnectivity();
-      if (result == ConnectivityResult.none) {
-        return false;
-      } else {
-        return true;
-      }
+      final results = await _connectivity.checkConnectivity();
+      return results.any((r) => r != ConnectivityResult.none);
     } on SocketException catch (_) {
       return false;
     }

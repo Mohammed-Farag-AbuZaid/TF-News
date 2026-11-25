@@ -9,7 +9,7 @@ class TLoaders {
   static void hideSnockBar() =>
       ScaffoldMessenger.of(Get.context!).hideCurrentSnackBar();
 
-  static void customToast({required message}) {
+  static void customToast({required String message}) {
     ScaffoldMessenger.of(Get.context!).showSnackBar(
       SnackBar(
         elevation: 0,

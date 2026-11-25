@@ -343,7 +343,7 @@ class SkeletonGrid extends StatelessWidget {
         mainAxisSpacing: 24,
       ),
       itemCount: count,
-      itemBuilder: (_, __) => const SkeletonCard(),
+      itemBuilder: (_, _) => const SkeletonCard(),
     );
   }
 }

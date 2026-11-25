@@ -171,7 +171,7 @@ class _ProgramsPageState extends State<ProgramsPage> {
             if (loading)
               l.box(ValueListenableBuilder<double?>(
                 valueListenable: _repo.programsProgress,
-                builder: (_, v, __) => Column(
+                builder: (_, v, _) => Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
